@@ -498,8 +498,8 @@
 // on the internet read and edit real customer data. The sign-in gate
 // below is what actually protects it, not the key being secret.
 // ============================================================
-const SUPABASE_URL = 'https://bcwcuuarchoapmkoerqi.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjd2N1dWFyY2hvYXBta29lcnFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2ODU2MDQsImV4cCI6MjEwNDI2MTYwNH0.VU35ZPlh4b5jfwrEPtDRUS081qjaRQ95CO1o_GvW2JE';
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
 
 let sb = null;
 let LIVE = false;
@@ -572,18 +572,21 @@ let vehicles = [
   {id:34, chassis:'S14 J',         desc:'Project',                job:'',   who:'AM', lane:8, colour:'coral', notes:''}
 ];
 
+// Placeholder leads, not real customer records — this array ships in the
+// page source to every visitor regardless of login, so it must never hold
+// real names/numbers. Real leads live in Supabase once signed in.
 let deals = [
-  {id:1, name:'Ryan Hamdan',  phone:'0420856969', value:65000, loc:'WA',        want:'R32 GTR', vehicle:21,   stage:'lead',      source:'Facebook', follow:'', notes:'Wants a gun metal stock WA. 60-70. Call back in 3 weeks after he settles on house.'},
-  {id:2, name:'Billy',        phone:'0411704674', value:65000, loc:'',          want:'R32 GTR', vehicle:21,   stage:'lead',      source:'Facebook', follow:'', notes:'Gun metal GTR, wants to look at 3pm.'},
-  {id:3, name:'Darnell',      phone:'0434366558', value:65000, loc:'',          want:'R32 GTR', vehicle:null, stage:'lead',      source:'Facebook', follow:'', notes:''},
-  {id:4, name:'Jordan Owen',  phone:'0433408225', value:65000, loc:'Brisbane',  want:'R32 GTR', vehicle:null, stage:'qualified', source:'Facebook', follow:'', notes:'Bought another GTR instead.'},
-  {id:5, name:'Matthew Jordan',phone:'0414008500',value:65000, loc:'',          want:'R32 GTR', vehicle:21,   stage:'qualified', source:'Facebook', follow:'', notes:'Inquired on Facebook. Wants a gun metal.'},
-  {id:6, name:'Nick',         phone:'0412409630', value:65000, loc:'South Australia', want:'R32 GTR', vehicle:26, stage:'closed', source:'Facebook', follow:'', notes:''},
-  {id:7, name:'Zackary',      phone:'0419664778', value:65000, loc:'Brisbane',  want:'R32 GTR', vehicle:27,   stage:'closed',    source:'Referral', follow:'', notes:''},
-  {id:8, name:'Rob Andrich',  phone:'0439452998', value:23000, loc:'',          want:'R33 GTST',vehicle:null, stage:'closed',    source:'Facebook', follow:'', notes:'Inquired on GTST then went Ghost.'},
-  {id:9, name:'Riley Lewis',  phone:'0410404606', value:19000, loc:'',          want:'R32 GTST',vehicle:null, stage:'lost',      source:'Facebook', follow:'', notes:'Seller. Wants to speak with mechanic and see if he can get it registered. 30/04'},
-  {id:10,name:'Josh Watkins', phone:'0484741002', value:65000, loc:'WA',        want:'R32 GTR', vehicle:null, stage:'lost',      source:'Facebook', follow:'', notes:'Wants a 32 gun metal.'},
-  {id:11,name:'Cooper',       phone:'0455999766', value:35000, loc:'',          want:'R32 GTST',vehicle:null, stage:'lost',      source:'Facebook', follow:'', notes:''}
+  {id:1, name:'Lead — WA buyer',    phone:'0400 000 001', value:65000, loc:'WA',        want:'R32 GTR', vehicle:21,   stage:'lead',      source:'Facebook', follow:'', notes:'Wants a gun metal stock WA. 60-70. Call back in 3 weeks after he settles on house.'},
+  {id:2, name:'Lead — Facebook',    phone:'0400 000 002', value:65000, loc:'',          want:'R32 GTR', vehicle:21,   stage:'lead',      source:'Facebook', follow:'', notes:'Gun metal GTR, wants to look at 3pm.'},
+  {id:3, name:'Lead — Facebook',    phone:'0400 000 003', value:65000, loc:'',          want:'R32 GTR', vehicle:null, stage:'lead',      source:'Facebook', follow:'', notes:''},
+  {id:4, name:'Lead — Brisbane',    phone:'0400 000 004', value:65000, loc:'Brisbane',  want:'R32 GTR', vehicle:null, stage:'qualified', source:'Facebook', follow:'', notes:'Bought another GTR instead.'},
+  {id:5, name:'Lead — Facebook',    phone:'0400 000 005', value:65000, loc:'',          want:'R32 GTR', vehicle:21,   stage:'qualified', source:'Facebook', follow:'', notes:'Inquired on Facebook. Wants a gun metal.'},
+  {id:6, name:'Buyer — SA',         phone:'0400 000 006', value:65000, loc:'South Australia', want:'R32 GTR', vehicle:26, stage:'closed', source:'Facebook', follow:'', notes:''},
+  {id:7, name:'Buyer — Brisbane',   phone:'0400 000 007', value:65000, loc:'Brisbane',  want:'R32 GTR', vehicle:27,   stage:'closed',    source:'Referral', follow:'', notes:''},
+  {id:8, name:'Buyer — enquiry',    phone:'0400 000 008', value:23000, loc:'',          want:'R33 GTST',vehicle:null, stage:'closed',    source:'Facebook', follow:'', notes:'Inquired on GTST then went Ghost.'},
+  {id:9, name:'Seller — enquiry',   phone:'0400 000 009', value:19000, loc:'',          want:'R32 GTST',vehicle:null, stage:'lost',      source:'Facebook', follow:'', notes:'Seller. Wants to speak with mechanic and see if he can get it registered. 30/04'},
+  {id:10,name:'Lead — WA',          phone:'0400 000 010', value:65000, loc:'WA',        want:'R32 GTR', vehicle:null, stage:'lost',      source:'Facebook', follow:'', notes:'Wants a 32 gun metal.'},
+  {id:11,name:'Lead — Facebook',    phone:'0400 000 011', value:35000, loc:'',          want:'R32 GTST',vehicle:null, stage:'lost',      source:'Facebook', follow:'', notes:''}
 ];
 
 let tasks = [
