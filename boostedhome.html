@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Boosted">
+<meta name="theme-color" content="#0F1011">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230F1011'/%3E%3Ctext x='90' y='122' font-family='Helvetica,Arial' font-size='108' font-weight='bold' font-style='italic' fill='%23E4C84D' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230F1011'/%3E%3Ctext x='32' y='45' font-family='Helvetica,Arial' font-size='40' font-weight='bold' font-style='italic' fill='%23E4C84D' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
+<title>Boosted — Home</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg:#161718; --surface:#1E2021; --surface-raised:#242627; --charcoal:#0F1011;
+    --steel:#8C9095; --paper:#ECEAE4; --line:#323436;
+    --teal:#6FBBB2; --teal-soft:#1D2E2C; --coral:#E38A6C; --coral-soft:#2E241F;
+    --amber:#E4C84D; --amber-soft:#2E2A1A; --green:#7FBF7A; --red:#D96E6E;
+    --purple:#A88BC7; --ink:#ECEAE4;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif;
+       -webkit-font-smoothing:antialiased; padding-bottom:40px;}
+
+  /* TOPBAR */
+  .topbar{background:var(--charcoal); display:flex; align-items:center; justify-content:space-between;
+          padding:12px 22px; border-bottom:1px solid var(--line);
+          position:sticky; top:0; z-index:40;}
+  .brand{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:22px; display:flex; align-items:baseline; gap:9px;}
+  .brand span{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--steel); font-weight:400;}
+  .topbar-right{display:flex; align-items:center; gap:11px;}
+  input.search{background:var(--surface-raised); border:1px solid #3A3D3F; border-radius:4px;
+               padding:8px 13px; color:var(--ink); font-size:13px; width:240px; font-family:'Inter';}
+  input.search::placeholder{color:var(--steel);}
+  input.search:focus{outline:none; border-color:var(--teal);}
+  .btn{background:var(--amber); color:var(--charcoal); border:none; font-weight:600; font-size:13px;
+       padding:9px 14px; border-radius:4px; cursor:pointer; font-family:'Inter';}
+  .btn:hover{filter:brightness(1.08);}
+  .btn.ghost{background:transparent; color:var(--steel); border:1px solid var(--line);}
+  .btn.ghost:hover{color:var(--ink); border-color:var(--steel); filter:none;}
+  .btn.danger{background:transparent; color:var(--red); border:1px solid #4A3234;}
+  .saved{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--steel);
+         min-width:74px; text-align:right; transition:color 0.2s;}
+  .saved.on{color:var(--green);}
+  .saved.warn{color:var(--amber);}
+
+  /* DASHBOARD STATS */
+  .dash{display:flex; gap:10px; padding:18px 22px 6px; flex-wrap:wrap;}
+  .kpi{background:var(--surface); border:1px solid var(--line); border-radius:6px;
+       padding:12px 16px; min-width:132px; flex:1 1 132px; cursor:pointer;}
+  .kpi:hover{border-color:var(--steel);}
+  .kpi .v{font-family:'Barlow Condensed',sans-serif; font-size:25px; font-weight:600; line-height:1;}
+  .kpi .l{font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--steel); margin-top:6px; letter-spacing:0.3px;}
+
+  /* SECTIONS */
+  .section{margin:14px 22px 0; background:var(--surface); border:1px solid var(--line); border-radius:7px; overflow:hidden;}
+  .sec-head{display:flex; align-items:center; gap:12px; padding:12px 16px; cursor:pointer;
+            border-bottom:1px solid var(--line); background:var(--surface-raised);}
+  .sec-head:hover{background:#292B2C;}
+  .sec-head .caret{color:var(--steel); font-size:10px; transition:transform 0.15s; width:11px;}
+  .section.collapsed .sec-head{border-bottom:none;}
+  .section.collapsed .caret{transform:rotate(-90deg);}
+  .sec-head h2{font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:600; letter-spacing:0.3px;}
+  .sec-head .accent{width:8px; height:8px; border-radius:50%;}
+  .sec-meta{margin-left:auto; display:flex; align-items:center; gap:16px;}
+  .sec-meta .m{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--steel);}
+  .sec-add{font-size:12px; color:var(--amber); font-weight:600;}
+  .sec-body{padding:12px 12px 14px; overflow-x:auto;}
+  .section.collapsed .sec-body{display:none;}
+  .sec-body::-webkit-scrollbar{height:8px;} .sec-body::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+
+  .lanes{display:flex; gap:10px; align-items:flex-start;}
+  .column{background:var(--bg); border:1px solid var(--line); border-radius:6px;
+          min-width:196px; flex:0 0 196px; padding:10px 8px 10px; max-height:352px; display:flex; flex-direction:column;}
+  .column.dragover{border-color:var(--amber); background:#1C1E1D;}
+  .col-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;
+            padding-bottom:6px; border-bottom:2px solid var(--amber); flex:0 0 auto;}
+  .col-title{font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:13.5px;}
+  .col-count{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--steel);
+             background:var(--surface-raised); border-radius:10px; padding:1px 7px;}
+  .col-value{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--steel); margin:5px 0 7px; flex:0 0 auto;}
+  .cards{overflow-y:auto; flex:1 1 auto; min-height:30px;}
+  .cards::-webkit-scrollbar{width:5px;} .cards::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px;}
+
+  /* CARDS */
+  .card{border-radius:4px; padding:8px 9px; margin-bottom:6px; cursor:grab; user-select:none;}
+  .card:active{cursor:grabbing;} .card.dragging{opacity:0.35;}
+  .card.teal{background:var(--teal-soft); border-left:3px solid var(--teal);}
+  .card.coral{background:var(--coral-soft); border-left:3px solid var(--coral);}
+  .card.amber{background:var(--amber-soft); border-left:3px solid var(--amber);}
+  .card .vin{font-family:'JetBrains Mono',monospace; font-size:10.5px; opacity:0.85;}
+  .card .desc{font-size:12px; font-weight:600; margin-top:3px; line-height:1.3;}
+  .card .foot{display:flex; justify-content:space-between; align-items:center; margin-top:6px;}
+  .card .job{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--steel);}
+  .card .who{width:17px; height:17px; border-radius:50%; font-family:'Barlow Condensed';
+             font-weight:600; font-size:9px; display:flex; align-items:center; justify-content:center;
+             background:var(--bg); color:var(--paper); border:1px solid var(--line);}
+
+  .deal{background:var(--surface-raised); border:1px solid var(--line); border-radius:5px;
+        padding:9px 10px; margin-bottom:6px; cursor:grab; user-select:none;}
+  .deal:active{cursor:grabbing;} .deal.dragging{opacity:0.35;}
+  .deal.hot{border-left:3px solid var(--amber);}
+  .deal .nm{font-size:12.5px; font-weight:600;}
+  .deal .val{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--green); margin-top:3px;}
+  .deal .ph{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--steel); margin-top:3px;}
+  .deal .tags{display:flex; gap:4px; flex-wrap:wrap; margin-top:6px;}
+  .tag{font-size:9.5px; font-weight:600; padding:2px 6px; border-radius:3px;}
+  .tag.gtr{background:rgba(227,138,108,0.16); color:var(--coral);}
+  .tag.gtst{background:rgba(168,139,199,0.16); color:var(--purple);}
+  .tag.stock{background:rgba(111,187,178,0.16); color:var(--teal);}
+  .tag.nostock{background:rgba(140,144,149,0.13); color:var(--steel);}
+  .deal .nt{font-size:11px; color:var(--steel); margin-top:6px; line-height:1.4;}
+  .deal .dfoot{display:flex; justify-content:space-between; margin-top:7px;
+               font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--steel);}
+
+  .task{background:var(--surface-raised); border:1px solid var(--line); border-radius:5px;
+        padding:9px 10px; margin-bottom:6px; cursor:grab; user-select:none; border-left:3px solid var(--line);}
+  .task:active{cursor:grabbing;} .task.dragging{opacity:0.35;}
+  .task .tt{font-size:12px; line-height:1.4; font-weight:500;}
+  .task.done .tt{text-decoration:line-through; color:var(--steel);}
+  .task .chk{display:flex; align-items:center; gap:6px; margin-top:8px; font-size:10.5px; color:var(--steel);}
+  .task .box{width:13px; height:13px; border:1.5px solid var(--steel); border-radius:3px;
+             display:flex; align-items:center; justify-content:center; font-size:9px; cursor:pointer;}
+  .task.done .box{background:var(--green); border-color:var(--green); color:var(--charcoal);}
+  .task .link{font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--teal); margin-top:6px;}
+  .task .when{font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--amber); margin-top:4px;}
+
+  .add-card{font-size:11.5px; color:var(--steel); padding:6px 2px 0; cursor:pointer; font-weight:500; flex:0 0 auto;}
+  .add-card:hover{color:var(--amber);}
+  .empty{font-size:11px; color:#4A4D4F; padding:7px 2px; font-style:italic;}
+
+  /* MODALS */
+  .overlay{position:fixed; inset:0; background:rgba(0,0,0,0.62); display:none;
+           align-items:center; justify-content:center; z-index:70; padding:20px;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--surface); border:1px solid var(--line); border-radius:8px;
+         width:100%; max-width:440px; max-height:90vh; overflow-y:auto;}
+  .modal-head{padding:15px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;}
+  .modal-head h2{font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:600;}
+  .close{color:var(--steel); cursor:pointer; font-size:21px; line-height:1;}
+  .close:hover{color:var(--ink);}
+  .modal-body{padding:15px 20px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:10.5px; color:var(--steel); margin-bottom:5px; font-family:'JetBrains Mono',monospace;}
+  .field input, .field select, .field textarea{
+    width:100%; background:var(--bg); border:1px solid var(--line); border-radius:4px;
+    padding:9px 11px; color:var(--ink); font-size:13px; font-family:'Inter';}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--teal);}
+  .field textarea{resize:vertical; min-height:58px;}
+  .row2{display:flex; gap:10px;} .row2 .field{flex:1;}
+  .swatches{display:flex; gap:8px;}
+  .sw{width:30px; height:30px; border-radius:4px; cursor:pointer; border:2px solid transparent;}
+  .sw.sel{border-color:var(--paper);}
+  .sw.teal{background:var(--teal);} .sw.coral{background:var(--coral);} .sw.amber{background:var(--amber);}
+  .modal-foot{padding:13px 20px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:10px;}
+  /* CALL MODE */
+  .callwrap{position:fixed; inset:0; background:rgba(12,13,14,0.94); display:none;
+            flex-direction:column; align-items:center; z-index:80; padding:18px;}
+  .callwrap.open{display:flex;}
+  .call-top{width:100%; max-width:430px; display:flex; justify-content:space-between;
+            align-items:center; margin-bottom:14px;}
+  .call-top h2{font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:600;}
+  .call-top .q{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--steel);}
+  .call-stage{position:relative; width:100%; max-width:430px; flex:1 1 auto; max-height:520px;}
+  .callcard{position:absolute; inset:0; background:var(--surface); border:1px solid var(--line);
+            border-radius:12px; padding:22px 20px; display:flex; flex-direction:column;
+            transition:transform 0.28s ease, opacity 0.28s ease; touch-action:pan-y;}
+  .callcard.go-good{transform:translateX(130%) rotate(14deg); opacity:0;}
+  .callcard.go-bad{transform:translateX(-130%) rotate(-14deg); opacity:0;}
+  .callcard.go-lost{transform:translateY(120%) scale(0.9); opacity:0;}
+  .cc-name{font-family:'Barlow Condensed',sans-serif; font-size:31px; font-weight:600; line-height:1.05;}
+  .cc-sub{font-size:12px; color:var(--steel); margin-top:5px;}
+  .cc-phone{display:block; font-family:'JetBrains Mono',monospace; font-size:25px; color:var(--amber);
+            margin:20px 0 4px; text-decoration:none; letter-spacing:0.5px;}
+  .cc-phone:active{opacity:0.65;}
+  .cc-tap{font-size:10.5px; color:var(--steel); font-family:'JetBrains Mono',monospace;}
+  .cc-block{margin-top:18px; padding-top:14px; border-top:1px solid var(--line);}
+  .cc-lbl{font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--steel); margin-bottom:5px;}
+  .cc-val{font-size:13.5px; line-height:1.45;}
+  .cc-match{color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:12.5px;}
+  .cc-nomatch{color:var(--steel); font-size:12.5px; font-style:italic;}
+  .cc-hist{margin-top:auto; padding-top:14px; display:flex; gap:16px;
+           font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--steel);}
+  .swipe-hint{position:absolute; top:20px; font-family:'Barlow Condensed',sans-serif;
+              font-size:26px; font-weight:700; opacity:0; transition:opacity 0.12s; pointer-events:none;}
+  .swipe-hint.l{left:20px; color:var(--coral); transform:rotate(-12deg);}
+  .swipe-hint.r{right:20px; color:var(--green); transform:rotate(12deg);}
+
+  .call-actions{width:100%; max-width:430px; display:flex; gap:10px; margin-top:16px;}
+  .cbtn{flex:1; border:1px solid var(--line); background:var(--surface); color:var(--ink);
+        border-radius:8px; padding:14px 10px; cursor:pointer; font-family:'Inter'; font-weight:600; font-size:13px;}
+  .cbtn .s{display:block; font-family:'JetBrains Mono',monospace; font-size:9.5px;
+           color:var(--steel); font-weight:400; margin-top:4px;}
+  .cbtn.good{border-color:var(--green); color:var(--green);}
+  .cbtn.bad{border-color:var(--coral); color:var(--coral);}
+  .cbtn:hover{filter:brightness(1.2);}
+  .call-lost{width:100%; max-width:430px; margin-top:9px; text-align:center;
+             padding:11px; color:var(--red); font-size:12.5px; cursor:pointer;
+             border:1px solid #4A3234; border-radius:8px; background:transparent;
+             font-family:'Inter'; font-weight:600;}
+  .call-empty{text-align:center; color:var(--steel); font-size:13.5px; line-height:1.6; padding:50px 20px;}
+  .call-close{position:absolute; top:16px; right:18px; color:var(--steel); font-size:24px; cursor:pointer;}
+
+  .hint{font-size:11px; color:var(--steel); margin-top:-6px; margin-bottom:12px; line-height:1.45;}
+
+  /* LOGIN GATE */
+  .gate{position:fixed; inset:0; background:var(--charcoal); display:none;
+        align-items:center; justify-content:center; z-index:95; padding:20px;}
+  .gate.open{display:flex;}
+
+  /* COST TABLE */
+  .cost-table-wrap{overflow-x:auto;}
+  .cost-table{width:100%; border-collapse:collapse; min-width:660px;}
+  .cost-table th{font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--steel); text-align:left;
+                 padding:6px 10px; border-bottom:1px solid var(--line); text-transform:uppercase; letter-spacing:0.3px;}
+  .cost-table td{padding:8px 10px; border-bottom:1px solid var(--line); font-size:12.5px;}
+  .cost-table tbody tr{cursor:pointer;}
+  .cost-table tbody tr:hover{background:var(--surface-raised);}
+  .cost-table td.mono{font-family:'JetBrains Mono',monospace;}
+  .pos{color:var(--green);} .neg{color:var(--red);}
+
+  /* COST MODAL */
+  .cost-summary{display:flex; flex-wrap:wrap; gap:16px; margin:2px 0 16px; padding:12px 14px;
+                background:var(--bg); border:1px solid var(--line); border-radius:6px;}
+  .cost-summary .cs{min-width:84px;}
+  .cost-summary .cs .v{font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:600;}
+  .cost-summary .cs .l{font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--steel); margin-top:2px;}
+  .exp-row{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:7px 9px;
+           background:var(--surface-raised); border-radius:4px; margin-bottom:5px;}
+  .exp-row .ex-main{flex:1; font-size:12px;}
+  .exp-row .ex-cat{font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--steel); text-transform:uppercase;}
+  .exp-row .ex-amt{font-family:'JetBrains Mono',monospace; font-weight:600; white-space:nowrap;}
+  .exp-row.quote .ex-amt{color:var(--amber);}
+  .exp-row .ex-del{color:var(--steel); cursor:pointer; font-size:16px; padding:0 2px; line-height:1;}
+  .exp-row .ex-del:hover{color:var(--red);}
+  .exp-add{border-top:1px solid var(--line); padding-top:12px; margin-top:6px;}
+  .exp-add .row2{margin-bottom:8px;}
+  .chk-inline{display:flex; align-items:center; gap:6px; font-size:11px; color:var(--steel); white-space:nowrap; flex:0 0 auto;}
+  .chk-inline input{width:auto;}
+
+  /* MOBILE */
+  @media (max-width: 700px){
+    .topbar{flex-wrap:wrap; gap:9px; padding:10px 14px;}
+    .topbar-right{width:100%; flex-wrap:wrap; gap:8px;}
+    input.search{width:100%; order:-1;}
+    .btn{flex:1; padding:9px 8px; font-size:12px;}
+    .saved{min-width:auto; flex-basis:100%; text-align:left;}
+    .dash{padding:12px 14px 4px; gap:8px;}
+    .kpi{min-width:calc(50% - 4px); flex:1 1 calc(50% - 4px); padding:10px 12px;}
+    .kpi .v{font-size:21px;}
+    .section{margin:10px 14px 0;}
+    .sec-head{padding:11px 13px;}
+    .sec-meta .sec-add{display:none;}
+    .sec-body{padding:10px 10px 12px;}
+    .column{min-width:172px; flex:0 0 172px; max-height:none;}
+    .cards{overflow-y:visible;}
+    .card, .deal, .task{padding:10px 11px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="modal" style="max-width:340px;">
+    <div class="modal-head"><h2>Boosted — Sign in</h2></div>
+    <div class="modal-body">
+      <div class="field"><label>EMAIL</label><input id="login_email" type="email" autocomplete="username"></div>
+      <div class="field"><label>PASSWORD</label><input id="login_pass" type="password" autocomplete="current-password"></div>
+      <div class="hint" id="loginError" style="color:var(--red); display:none;"></div>
+    </div>
+    <div class="modal-foot"><div></div><button class="btn" id="loginBtn">Sign in</button></div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="brand">BOOSTED <span>HOME</span></div>
+  <div class="topbar-right">
+    <input class="search" id="search" placeholder="Search everything — chassis, buyer, task…">
+    <span class="saved" id="saved"></span>
+    <button class="btn ghost" id="collapseBtn">Collapse all</button>
+    <button class="btn ghost" id="signOutBtn" style="display:none;">Sign out</button>
+    <button class="btn ghost" id="importBtn">Import</button>
+    <button class="btn ghost" id="exportBtn">Export</button>
+    <input type="file" id="fileInput" accept="application/json" style="display:none">
+  </div>
+</div>
+
+<div class="dash" id="dash"></div>
+
+<div class="section" id="sec-todo">
+  <div class="sec-head" data-toggle="sec-todo">
+    <span class="caret">▼</span><span class="accent" style="background:var(--purple)"></span>
+    <h2>To Do</h2>
+    <div class="sec-meta"><span class="m" id="m-todo"></span><span class="sec-add" data-add="task">+ New task</span></div>
+  </div>
+  <div class="sec-body"><div class="lanes" id="lanes-todo"></div></div>
+</div>
+
+<div class="section" id="sec-production">
+  <div class="sec-head" data-toggle="sec-production">
+    <span class="caret">▼</span><span class="accent" style="background:var(--amber)"></span>
+    <h2>Production Line</h2>
+    <div class="sec-meta"><span class="m" id="m-production"></span><span class="sec-add" data-add="vehicle">+ New vehicle</span></div>
+  </div>
+  <div class="sec-body"><div class="lanes" id="lanes-production"></div></div>
+</div>
+
+<div class="section" id="sec-costs">
+  <div class="sec-head" data-toggle="sec-costs">
+    <span class="caret">▼</span><span class="accent" style="background:var(--coral)"></span>
+    <h2>Costs &amp; Margin</h2>
+    <div class="sec-meta"><span class="m" id="m-costs"></span></div>
+  </div>
+  <div class="sec-body"><div class="cost-table-wrap"><table class="cost-table">
+    <thead><tr><th>Chassis</th><th>Desc</th><th>Lane</th><th>Cost</th><th>Asking</th><th>Sale</th><th>Profit</th><th>ROI</th><th>Days</th></tr></thead>
+    <tbody id="costRows"></tbody>
+  </table></div></div>
+</div>
+
+<div class="section" id="sec-crm">
+  <div class="sec-head" data-toggle="sec-crm">
+    <span class="caret">▼</span><span class="accent" style="background:var(--green)"></span>
+    <h2>Sales CRM</h2>
+    <div class="sec-meta"><span class="m" id="m-crm"></span><span class="sec-add" data-add="call">▶ Call mode</span><span class="sec-add" data-add="deal">+ New lead</span></div>
+  </div>
+  <div class="sec-body"><div class="lanes" id="lanes-crm"></div></div>
+</div>
+
+
+<div class="overlay" id="vOverlay">
+  <div class="modal">
+    <div class="modal-head"><h2 id="vTitle">New Vehicle</h2><div class="close" data-close="v">&times;</div></div>
+    <div class="modal-body">
+      <div class="field"><label>CHASSIS / IDENTIFIER</label><input id="f_chassis" placeholder="BNR32-307694"></div>
+      <div class="field"><label>DESCRIPTION</label><input id="f_desc" placeholder="R32 GT-R — White BBS"></div>
+      <div class="row2">
+        <div class="field"><label>JOB NO.</label><input id="f_job"></div>
+        <div class="field"><label>ASSIGNED</label><input id="f_who" maxlength="3"></div>
+      </div>
+      <div class="field"><label>LANE</label><select id="f_lane"></select></div>
+      <div class="field"><label>CARD COLOUR</label>
+        <div class="swatches"><div class="sw teal" data-c="teal"></div><div class="sw coral" data-c="coral"></div><div class="sw amber" data-c="amber"></div></div>
+      </div>
+      <div class="field"><label>NOTES</label><textarea id="f_notes"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn danger" id="vDelete">Delete</button>
+      <div style="display:flex; gap:8px;"><button class="btn ghost" data-close="v">Cancel</button><button class="btn" id="vSave">Save</button></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="dOverlay">
+  <div class="modal">
+    <div class="modal-head"><h2 id="dTitle">New Lead</h2><div class="close" data-close="d">&times;</div></div>
+    <div class="modal-body">
+      <div class="field"><label>NAME</label><input id="d_name"></div>
+      <div class="row2">
+        <div class="field"><label>PHONE</label><input id="d_phone"></div>
+        <div class="field"><label>BUDGET</label><input id="d_value"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>LOCATION</label><input id="d_loc"></div>
+        <div class="field"><label>SOURCE</label><select id="d_source">
+          <option>Facebook</option><option>SAU forum</option><option>Website</option>
+          <option>Referral</option><option>Walk-in</option><option>Auction</option><option>Other</option></select></div>
+      </div>
+      <div class="field"><label>LOOKING FOR</label><input id="d_want" placeholder="R32 GTR — gun metal"></div>
+      <div class="field"><label>MATCH TO STOCK</label><select id="d_vehicle"></select></div>
+      <div class="hint">Linking a lead to a vehicle means when that car hits Sale Ready you already know who's waiting on it.</div>
+      <div class="row2">
+        <div class="field"><label>STAGE</label><select id="d_stage"></select></div>
+        <div class="field"><label>FOLLOW UP</label><input id="d_follow" type="date"></div>
+      </div>
+      <div class="field"><label>NOTES</label><textarea id="d_notes"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn danger" id="dDelete">Delete</button>
+      <div style="display:flex; gap:8px;"><button class="btn ghost" data-close="d">Cancel</button><button class="btn" id="dSave">Save</button></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="tOverlay">
+  <div class="modal">
+    <div class="modal-head"><h2 id="tTitle">New Task</h2><div class="close" data-close="t">&times;</div></div>
+    <div class="modal-body">
+      <div class="field"><label>TASK</label><textarea id="t_text"></textarea></div>
+      <div class="row2">
+        <div class="field"><label>LIST</label><select id="t_list"></select></div>
+        <div class="field"><label>TIME</label><input id="t_when" placeholder="08:30"></div>
+      </div>
+      <div class="field"><label>RELATED VEHICLE</label><select id="t_vehicle"></select></div>
+      <div class="hint">Tasks tied to a car stay meaningful after today — "the white car" becomes a chassis number.</div>
+    </div>
+    <div class="modal-foot"><button class="btn danger" id="tDelete">Delete</button>
+      <div style="display:flex; gap:8px;"><button class="btn ghost" data-close="t">Cancel</button><button class="btn" id="tSave">Save</button></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="cOverlay">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-head"><h2 id="cTitle">Cost breakdown</h2><div class="close" data-close="c">&times;</div></div>
+    <div class="modal-body">
+      <div class="row2">
+        <div class="field"><label>ASKING PRICE</label><input id="c_asking" type="number"></div>
+        <div class="field"><label>SALE PRICE</label><input id="c_sale" type="number"></div>
+      </div>
+      <div class="field"><label>PURCHASE DATE</label><input id="c_purchase" type="date"></div>
+      <div class="cost-summary" id="cSummary"></div>
+      <div class="field"><label>EXPENSES</label>
+        <div id="cExpenseList"></div>
+      </div>
+      <div class="exp-add">
+        <div class="row2">
+          <div class="field"><select id="e_category"></select></div>
+          <div class="field"><input id="e_desc" placeholder="Description"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><input id="e_amount" type="number" placeholder="Amount"></div>
+          <label class="chk-inline"><input type="checkbox" id="e_quote"> Quote pending</label>
+        </div>
+        <button class="btn ghost" id="eAdd" style="width:100%;">+ Add expense</button>
+      </div>
+    </div>
+    <div class="modal-foot"><div></div><button class="btn ghost" data-close="c">Close</button></div>
+  </div>
+</div>
+
+<div class="callwrap" id="callwrap">
+  <div class="call-close" id="callClose">&times;</div>
+  <div class="call-top">
+    <h2>Call list</h2>
+    <div class="q" id="callQ"></div>
+  </div>
+  <div class="call-stage" id="callStage"></div>
+  <div class="call-actions" id="callActions">
+    <button class="cbtn bad"  id="btnBad">Not keen<span class="s">back in 3 days</span></button>
+    <button class="cbtn good" id="btnGood">Keen<span class="s">call again tomorrow</span></button>
+  </div>
+  <button class="call-lost" id="btnLost">✕ Move to lost leads</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+// ============================================================
+// SUPABASE CONFIG
+// ------------------------------------------------------------
+// Leave both blank to run LOCAL (browser storage only) — this is
+// how the trial week runs, nothing changes.
+//
+// To go live:
+//   1. supabase.com -> New project (free tier is fine)
+//   2. SQL Editor -> paste schema.sql -> Run
+//   3. Authentication -> Users -> Add user. One shared email/password
+//      for the whole team (not per-person) is fine for now.
+//   4. SQL Editor -> insert a profiles row for that user's UUID
+//      (shown in the Users table), e.g.:
+//        insert into profiles (id, full_name, role)
+//        values ('<uuid-from-step-3>', 'Boosted Staff', 'owner');
+//      Without this row, RLS blocks that login from reading/writing
+//      anything — a blank board after sign-in almost always means
+//      this step was skipped.
+//   5. Settings -> API -> copy Project URL and the `anon public` key
+//   6. Paste them below and reload.
+//
+// The anon key is safe in the browser — it's public by design. This
+// repo is public, so with no login at all that key would let anyone
+// on the internet read and edit real customer data. The sign-in gate
+// below is what actually protects it, not the key being secret.
+// ============================================================
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
+
+let sb = null;
+let LIVE = false;
+
+// ============================================================
+// CONFIG — mirrors lanes / deal_stage in schema.sql
+// ============================================================
+const LANES = [
+  {id:1, name:'Overseas / OR',   board:'production'},
+  {id:2, name:'Waiting',         board:'production'},
+  {id:3, name:'Rust / Repaint',  board:'production'},
+  {id:4, name:'Roadtest / Tune', board:'production'},
+  {id:5, name:'Sale Ready',      board:'production'},
+  {id:6, name:'Pending',         board:'production'},
+  {id:7, name:'Sold',            board:'production'},
+  {id:8, name:'Personal Cars',   board:'personal'}
+];
+
+const STAGES = [
+  {id:'lead',name:'Lead'},{id:'qualified',name:'Qualified'},{id:'negotiating',name:'Negotiating'},
+  {id:'deposit',name:'Deposit'},{id:'closed',name:'Closed'},{id:'lost',name:'Lost'}
+];
+
+const LISTS = [
+  {id:'daily', name:'Daily WDL',     colour:'var(--purple)'},
+  {id:'high',  name:'High Priority', colour:'var(--red)'},
+  {id:'med',   name:'Medium',        colour:'var(--amber)'},
+  {id:'low',   name:'Low',           colour:'var(--green)'},
+  {id:'geoff', name:'Geoff',         colour:'var(--teal)'}
+];
+let vehicles = [
+  {id:1,  chassis:'BNR32-025932', desc:'R32 GT-R import',        job:'31', who:'AM', lane:1, colour:'teal',  notes:'Deregistration in progress'},
+  {id:2,  chassis:'BNR32-305863', desc:'Deposit received',        job:'6',  who:'JB', lane:1, colour:'coral', notes:''},
+  {id:3,  chassis:'BNR32-178990', desc:'Awaiting docs',           job:'27', who:'AM', lane:1, colour:'amber', notes:''},
+  {id:4,  chassis:'BNR32-128790', desc:'R32 GTS-T',               job:'23', who:'AM', lane:1, colour:'coral', notes:''},
+  {id:5,  chassis:'BNR33-003929', desc:'$10,000 deposit paid',    job:'29', who:'JB', lane:1, colour:'teal',  notes:''},
+  {id:6,  chassis:'BCNR33-015313',desc:'R33 GT-R stock',          job:'53', who:'JB', lane:2, colour:'teal',  notes:''},
+  {id:7,  chassis:'BNR32-306008', desc:'Compliance pending',      job:'55', who:'AM', lane:2, colour:'coral', notes:''},
+  {id:8,  chassis:'BNR32-250177', desc:'In yard, awaiting parts', job:'52', who:'AM', lane:2, colour:'coral', notes:''},
+  {id:9,  chassis:'BCNR33-003768',desc:'Km build',                job:'50', who:'JB', lane:2, colour:'teal',  notes:''},
+  {id:10, chassis:'BNR32-003595', desc:'Awaiting assessment',     job:'32', who:'AM', lane:2, colour:'teal',  notes:''},
+  {id:11, chassis:'BNR32-114569', desc:'Yellow — AWR panel',      job:'29', who:'AM', lane:3, colour:'coral', notes:'Rust repair before paint'},
+  {id:12, chassis:'BNR32-291569', desc:'Gulf blue repaint',       job:'2',  who:'JB', lane:3, colour:'coral', notes:''},
+  {id:13, chassis:'BNR32-137016', desc:'Prep for paint',          job:'8',  who:'AM', lane:3, colour:'coral', notes:''},
+  {id:14, chassis:'R35 GTR-01',   desc:'Black — roadtest #1',     job:'5',  who:'AM', lane:4, colour:'coral', notes:''},
+  {id:15, chassis:'BNR34-008999', desc:'Melbourne car — tune',    job:'15', who:'JB', lane:4, colour:'coral', notes:''},
+  {id:16, chassis:'BNR32-004958', desc:'Widebody — GM Doct',      job:'29', who:'AM', lane:4, colour:'coral', notes:''},
+  {id:17, chassis:'R32-249218',   desc:'Blue machine — TH1',      job:'7',  who:'AM', lane:4, colour:'teal',  notes:''},
+  {id:18, chassis:'R32 white',    desc:'Head gasket 300kW',       job:'10', who:'JB', lane:4, colour:'coral', notes:''},
+  {id:19, chassis:'R32 GTR N61',  desc:'012 447 high mount',      job:'8',  who:'AM', lane:4, colour:'teal',  notes:''},
+  {id:20, chassis:'N1 KASEMI',    desc:'Photography booked',      job:'22', who:'JB', lane:5, colour:'teal',  notes:''},
+  {id:21, chassis:'BNR32-308745', desc:'Well car — gun metal',    job:'36', who:'AM', lane:5, colour:'coral', notes:'Gun metal, stock'},
+  {id:22, chassis:'BCNR33-002062',desc:'Stock silver GT-R',       job:'18', who:'JB', lane:5, colour:'teal',  notes:''},
+  {id:23, chassis:'BNR32-003929', desc:'Black BBS',               job:'40', who:'AM', lane:5, colour:'coral', notes:''},
+  {id:24, chassis:'BNR32-312187', desc:'Stock red',               job:'38', who:'AM', lane:6, colour:'teal',  notes:'Buyer reviewing'},
+  {id:25, chassis:'R32 GTR-312136',desc:'V-Spec II',              job:'28', who:'JB', lane:6, colour:'coral', notes:''},
+  {id:26, chassis:'BNR32-016914', desc:'Red N1 build',            job:'14', who:'AM', lane:7, colour:'teal',  notes:''},
+  {id:27, chassis:'BNR32-307694', desc:'White BBS — single turbo',job:'36', who:'AM', lane:7, colour:'coral', notes:'Sold $75,000'},
+  {id:28, chassis:'S13J',          desc:'Project',                job:'32', who:'AM', lane:8, colour:'coral', notes:''},
+  {id:29, chassis:'Laurel M',      desc:'Not for sale',           job:'',   who:'AM', lane:8, colour:'coral', notes:''},
+  {id:30, chassis:'Lambo Aurus',   desc:'Awaiting cover / detail',job:'',   who:'AM', lane:8, colour:'coral', notes:''},
+  {id:31, chassis:'180SX',         desc:'Body prep, brakes',      job:'',   who:'AM', lane:8, colour:'teal',  notes:''},
+  {id:32, chassis:'Hilux 2019',    desc:'Daily',                  job:'',   who:'AM', lane:8, colour:'coral', notes:''},
+  {id:33, chassis:'R32 GTR-269808',desc:'2.8L N1 personal build', job:'',   who:'AM', lane:8, colour:'teal',  notes:''},
+  {id:34, chassis:'S14 J',         desc:'Project',                job:'',   who:'AM', lane:8, colour:'coral', notes:''}
+];
+
+let deals = [
+  {id:1, name:'Ryan Hamdan',  phone:'0420856969', value:65000, loc:'WA',        want:'R32 GTR', vehicle:21,   stage:'lead',      source:'Facebook', follow:'', notes:'Wants a gun metal stock WA. 60-70. Call back in 3 weeks after he settles on house.'},
+  {id:2, name:'Billy',        phone:'0411704674', value:65000, loc:'',          want:'R32 GTR', vehicle:21,   stage:'lead',      source:'Facebook', follow:'', notes:'Gun metal GTR, wants to look at 3pm.'},
+  {id:3, name:'Darnell',      phone:'0434366558', value:65000, loc:'',          want:'R32 GTR', vehicle:null, stage:'lead',      source:'Facebook', follow:'', notes:''},
+  {id:4, name:'Jordan Owen',  phone:'0433408225', value:65000, loc:'Brisbane',  want:'R32 GTR', vehicle:null, stage:'qualified', source:'Facebook', follow:'', notes:'Bought another GTR instead.'},
+  {id:5, name:'Matthew Jordan',phone:'0414008500',value:65000, loc:'',          want:'R32 GTR', vehicle:21,   stage:'qualified', source:'Facebook', follow:'', notes:'Inquired on Facebook. Wants a gun metal.'},
+  {id:6, name:'Nick',         phone:'0412409630', value:65000, loc:'South Australia', want:'R32 GTR', vehicle:26, stage:'closed', source:'Facebook', follow:'', notes:''},
+  {id:7, name:'Zackary',      phone:'0419664778', value:65000, loc:'Brisbane',  want:'R32 GTR', vehicle:27,   stage:'closed',    source:'Referral', follow:'', notes:''},
+  {id:8, name:'Rob Andrich',  phone:'0439452998', value:23000, loc:'',          want:'R33 GTST',vehicle:null, stage:'closed',    source:'Facebook', follow:'', notes:'Inquired on GTST then went Ghost.'},
+  {id:9, name:'Riley Lewis',  phone:'0410404606', value:19000, loc:'',          want:'R32 GTST',vehicle:null, stage:'lost',      source:'Facebook', follow:'', notes:'Seller. Wants to speak with mechanic and see if he can get it registered. 30/04'},
+  {id:10,name:'Josh Watkins', phone:'0484741002', value:65000, loc:'WA',        want:'R32 GTR', vehicle:null, stage:'lost',      source:'Facebook', follow:'', notes:'Wants a 32 gun metal.'},
+  {id:11,name:'Cooper',       phone:'0455999766', value:35000, loc:'',          want:'R32 GTST',vehicle:null, stage:'lost',      source:'Facebook', follow:'', notes:''}
+];
+
+let tasks = [
+  {id:1, list:'daily', text:'6:00am Wake',                                              done:false, vehicle:null, when:'06:00'},
+  {id:2, list:'daily', text:'Gym & Food',                                               done:false, vehicle:null, when:''},
+  {id:3, list:'daily', text:'8:30 Department of Transport',                             done:false, vehicle:null, when:'08:30'},
+  {id:4, list:'daily', text:'Register Black car, book shipping w/ Prix car and get paid',done:false, vehicle:23,   when:''},
+  {id:5, list:'daily', text:'Do invoice for Black and White car',                        done:false, vehicle:27,   when:''},
+  {id:6, list:'daily', text:'11:20AM Funds arrive white car, ask for remaining funds',   done:false, vehicle:27,   when:'11:20'},
+  {id:7, list:'med',   text:'Find out what car has LinkT overdue bill and assign to customer', done:false, vehicle:null, when:''},
+  {id:8, list:'med',   text:'Complete personal hardship grant',                          done:false, vehicle:null, when:''},
+  {id:9, list:'med',   text:'Buy stuff Charles recommended for cleaning engine bays',    done:false, vehicle:null, when:''},
+  {id:10,list:'low',   text:'Clear off old marketplace posts to tidy up previous listings',done:false, vehicle:null, when:''},
+  {id:11,list:'low',   text:'Cancel Dropbox monthly subscription $18.69',                done:false, vehicle:null, when:''},
+  {id:12,list:'geoff', text:'Speak with Amex. Increase spending limit (once they receive funds)', done:false, vehicle:null, when:''},
+  {id:13,list:'geoff', text:'Build email database on Mailchimp. Import data',            done:false, vehicle:null, when:''},
+  {id:14,list:'geoff', text:'Build Mailchimp templates and start customer follow-up emails', done:false, vehicle:null, when:''},
+  {id:15,list:'geoff', text:'Increase production ability — hire more mechanics, contact Seek applicants', done:false, vehicle:null, when:''}
+];
+
+let expenses = [];
+
+let nextV = 200, nextD = 200, nextT = 200, nextE = 200;
+let editingV = null, editingD = null, editingT = null, editingCost = null;
+let selColour = 'teal';
+let filter = '';
+const $ = id => document.getElementById(id);
+const money = n => n ? '$' + Number(n).toLocaleString('en-AU') : '—';
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const laneBoard = id => (LANES.find(x=>x.id===id)||{}).board || 'production';
+
+// ============================================================
+// DATA LAYER
+// Every read/write goes through `db`. In LOCAL mode it just
+// touches the arrays + browser storage. In LIVE mode the same
+// calls hit Postgres. Nothing else in the app changes — which
+// is the whole point of routing through one layer.
+// ============================================================
+
+// The app's card shape is friendlier than the table's column names,
+// so translate at the boundary. Column names match schema.sql.
+const toVehicleRow = v => ({
+  id: typeof v.id === 'number' ? undefined : v.id,
+  chassis_no: v.chassis, model: v.desc, job_no: v.job ? +v.job : null,
+  card_colour: v.colour, lane_id: v.lane, notes: v.notes,
+  asking_price: v.asking || null, sale_price: v.sale || null,
+  purchase_date: v.purchaseDate || null
+});
+const fromVehicleRow = r => ({
+  id: r.id, chassis: r.chassis_no || '', desc: r.model || '',
+  job: r.job_no ? String(r.job_no) : '', who: r.assigned_initials || '',
+  lane: r.lane_id, colour: r.card_colour || 'teal', notes: r.notes || '',
+  asking: r.asking_price || null, sale: r.sale_price || null,
+  purchaseDate: r.purchase_date || null
+});
+const toExpenseRow = e => ({
+  vehicle_id: e.vehicle, category: e.category, description: e.desc,
+  amount: +e.amount || 0, is_quote: !!e.isQuote, supplier: e.supplier || null,
+  notes: e.notes || null, incurred_on: e.date || null
+});
+const fromExpenseRow = r => ({
+  id: r.id, vehicle: r.vehicle_id, category: r.category || 'other',
+  desc: r.description || '', amount: r.amount || 0, isQuote: !!r.is_quote,
+  supplier: r.supplier || '', notes: r.notes || '', date: r.incurred_on || ''
+});
+const toDealRow = d => ({
+  name: d.name, phone: d.phone, offer_amount: d.value, location: d.loc,
+  looking_for: d.want, vehicle_id: d.vehicle, stage: d.stage,
+  source: d.source, next_follow_up: d.follow || null, notes: d.notes,
+  last_called: d.last_called || null, call_count: d.calls || 0
+});
+const fromDealRow = r => ({
+  id: r.id, name: r.name || '', phone: r.phone || '', value: r.offer_amount || 0,
+  loc: r.location || '', want: r.looking_for || '', vehicle: r.vehicle_id,
+  stage: r.stage, source: r.source || 'Other', follow: r.next_follow_up || '',
+  notes: r.notes || '', last_called: r.last_called || '', calls: r.call_count || 0
+});
+const toTaskRow = t => ({
+  text: t.text, list_id: t.list, done: t.done,
+  due_time: t.when || null, vehicle_id: t.vehicle
+});
+const fromTaskRow = r => ({
+  id: r.id, text: r.text || '', list: r.list_id, done: !!r.done,
+  when: r.due_time || '', vehicle: r.vehicle_id
+});
+
+const db = {
+  async init(){
+    if(!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
+    try{
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const { error } = await sb.from('vehicles').select('id').limit(1);
+      if(error) throw error;
+      LIVE = true;
+      return true;
+    }catch(e){
+      console.warn('Supabase unavailable, staying local:', e.message);
+      LIVE = false;
+      return false;
+    }
+  },
+
+  async loadAll(){
+    if(!LIVE) return false;
+    const [v, d, t, e] = await Promise.all([
+      sb.from('vehicles').select('*'),
+      sb.from('deals').select('*'),
+      sb.from('tasks').select('*'),
+      sb.from('expenses').select('*')
+    ]);
+    if(v.error || d.error || t.error || e.error) throw (v.error || d.error || t.error || e.error);
+    vehicles = (v.data || []).map(fromVehicleRow);
+    deals    = (d.data || []).map(fromDealRow);
+    tasks    = (t.data || []).map(fromTaskRow);
+    expenses = (e.data || []).map(fromExpenseRow);
+    return true;
+  },
+
+  async upsert(kind, obj){
+    if(!LIVE) return obj;
+    const map = {vehicle:[ 'vehicles', toVehicleRow, fromVehicleRow],
+                 deal:   [ 'deals',    toDealRow,    fromDealRow],
+                 task:   [ 'tasks',    toTaskRow,    fromTaskRow],
+                 expense:[ 'expenses', toExpenseRow, fromExpenseRow]};
+    const [table, to, from] = map[kind];
+    const row = to(obj);
+    if(typeof obj.id === 'string') row.id = obj.id;   // existing uuid
+    const { data, error } = await sb.from(table).upsert(row).select().single();
+    if(error){ flag('save failed', 'warn'); console.error(error); return obj; }
+    return from(data);
+  },
+
+  async remove(kind, id){
+    if(!LIVE) return;
+    const table = {vehicle:'vehicles', deal:'deals', task:'tasks', expense:'expenses'}[kind];
+    const { error } = await sb.from(table).delete().eq('id', id);
+    if(error){ flag('delete failed', 'warn'); console.error(error); }
+  },
+
+  // Realtime — the reason the board beats a shared spreadsheet.
+  // Any change by anyone, on any device, redraws every open board.
+  subscribe(){
+    if(!LIVE) return;
+    sb.channel('boosted-board')
+      .on('postgres_changes', {event:'*', schema:'public', table:'vehicles'}, refresh)
+      .on('postgres_changes', {event:'*', schema:'public', table:'deals'},    refresh)
+      .on('postgres_changes', {event:'*', schema:'public', table:'tasks'},    refresh)
+      .on('postgres_changes', {event:'*', schema:'public', table:'expenses'}, refresh)
+      .subscribe();
+    async function refresh(){
+      try{ await db.loadAll(); render(false); flag('live · synced', 'on'); }
+      catch(e){ console.error(e); }
+    }
+  }
+};
+
+// ============================================================
+// PERSISTENCE
+// Saves after every change so a refresh doesn't lose work.
+// Export/Import is the reliable backup regardless of environment.
+// ============================================================
+const STORE_KEY = 'boosted:data';
+let storageOK = false;
+
+async function save(){
+  if(LIVE){ flag('live · synced', 'on'); return; }   // Postgres is the source of truth
+  const payload = JSON.stringify({vehicles, deals, tasks, expenses, nextV, nextD, nextT, nextE});
+  try{
+    if(typeof window.storage === 'undefined') throw new Error('no storage api');
+    await window.storage.set(STORE_KEY, payload, false);
+    storageOK = true;
+    flag('saved ' + new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'}), 'on');
+  }catch(e){
+    storageOK = false;
+    flag('export to save', 'warn');
+  }
+}
+
+async function load(){
+  try{
+    if(typeof window.storage === 'undefined') throw new Error('no storage api');
+    const r = await window.storage.get(STORE_KEY, false);
+    if(r && r.value){
+      const d = JSON.parse(r.value);
+      if(Array.isArray(d.vehicles)) vehicles = d.vehicles;
+      if(Array.isArray(d.deals))    deals    = d.deals;
+      if(Array.isArray(d.tasks))    tasks    = d.tasks;
+      if(Array.isArray(d.expenses)) expenses = d.expenses;
+      nextV = d.nextV || nextV; nextD = d.nextD || nextD; nextT = d.nextT || nextT; nextE = d.nextE || nextE;
+      storageOK = true;
+      flag('restored', 'on');
+      return;
+    }
+    storageOK = true;
+    flag('ready', 'on');
+  }catch(e){
+    flag('export to save', 'warn');
+  }
+}
+
+function flag(text, cls){
+  const el = $('saved');
+  el.textContent = text;
+  el.className = 'saved ' + (cls || '');
+}
+
+function bumpIds(){
+  nextV = Math.max(nextV, ...vehicles.map(v=>v.id), 0) + 1;
+  nextD = Math.max(nextD, ...deals.map(d=>d.id), 0) + 1;
+  nextT = Math.max(nextT, ...tasks.map(t=>t.id), 0) + 1;
+  nextE = Math.max(nextE, ...expenses.map(e=>e.id), 0) + 1;
+}
+
+// ---------- COST / MARGIN HELPERS ----------
+// Mirrors vehicle_costs / vehicle_margins in schema.sql so the same
+// numbers show here as would come from those views once live.
+function vehicleCost(vId){
+  const items = expenses.filter(e => e.vehicle === vId);
+  const total = items.filter(e => !e.isQuote).reduce((s,e)=>s+(+e.amount||0), 0);
+  return {total, items};
+}
+function vehicleMargin(v){
+  const {total} = vehicleCost(v.id);
+  const headline = v.sale ?? v.asking ?? null;
+  const profit = headline != null ? headline - total : null;
+  const roi = (total > 0 && profit != null) ? Math.round((profit/total)*1000)/10 : null;
+  const days = v.purchaseDate
+    ? Math.round((Date.now() - new Date(v.purchaseDate).getTime()) / 86400000)
+    : null;
+  return {total, profit, roi, days};
+}
+
+// ============================================================
+// RENDER — every section, every time
+// ============================================================
+function render(persist = true){
+  renderDash();
+  renderVehicles('production');
+  renderCosts();
+  renderCRM();
+  renderTasks();
+  if(persist) save();
+}
+
+function renderDash(){
+  const inWorkshop = vehicles.filter(v=>[3,4].includes(v.lane)).length;
+  const ready      = vehicles.filter(v=>v.lane===5).length;
+  const openDeals  = deals.filter(d=>!['lost','closed'].includes(d.stage));
+  const pipeline   = openDeals.reduce((s,d)=>s+(+d.value||0),0);
+  const openTasks  = tasks.filter(t=>!t.done).length;
+  const matched    = openDeals.filter(d=>d.vehicle).length;
+  const callsDue   = buildQueue().length;
+  const openSpend  = vehicles.filter(v=>v.lane!==7).reduce((s,v)=>s+vehicleCost(v.id).total, 0);
+
+  $('dash').innerHTML = `
+    <div class="kpi"><div class="v" style="color:var(--purple)">${openTasks}</div><div class="l">OPEN TASKS</div></div>
+    <div class="kpi"><div class="v">${vehicles.filter(v=>laneBoard(v.lane)==='production').length}</div><div class="l">VEHICLES ON BOARD</div></div>
+    <div class="kpi"><div class="v">${inWorkshop}</div><div class="l">IN WORKSHOP</div></div>
+    <div class="kpi"><div class="v" style="color:var(--teal)">${ready}</div><div class="l">SALE READY</div></div>
+    <div class="kpi"><div class="v" style="color:var(--coral)">${money(openSpend)}</div><div class="l">OPEN STOCK SPEND</div></div>
+    <div class="kpi"><div class="v" style="color:var(--green)">${money(pipeline)}</div><div class="l">OPEN PIPELINE</div></div>
+    <div class="kpi"><div class="v">${openDeals.length}</div><div class="l">ACTIVE LEADS</div></div>
+    <div class="kpi"><div class="v" style="color:var(--amber)">${matched}</div><div class="l">LEADS MATCHED TO STOCK</div></div>
+    <div class="kpi" id="kpiCall"><div class="v" style="color:var(--red)">${callsDue}</div><div class="l">CALLS DUE TODAY</div></div>`;
+  const k = $('kpiCall'); if(k) k.onclick = openCall;
+}
+
+function renderCosts(){
+  const wrap = $('costRows'); wrap.innerHTML = '';
+  const rows = vehicles.filter(matchV)
+    .sort((a,b) => a.lane - b.lane || a.chassis.localeCompare(b.chassis));
+  let totalSpend = 0, roiSum = 0, roiCount = 0;
+
+  if(!rows.length){
+    wrap.innerHTML = `<tr><td colspan="9" class="empty">${filter?'No matches':'No vehicles yet'}</td></tr>`;
+  }
+  rows.forEach(v => {
+    const m = vehicleMargin(v);
+    totalSpend += m.total;
+    if(m.roi != null){ roiSum += m.roi; roiCount++; }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="mono">${esc(v.chassis)}</td><td>${esc(v.desc)}</td>
+      <td>${esc((LANES.find(l=>l.id===v.lane)||{}).name || '')}</td>
+      <td class="mono">${money(m.total)}</td>
+      <td class="mono">${v.asking ? money(v.asking) : '—'}</td>
+      <td class="mono">${v.sale ? money(v.sale) : '—'}</td>
+      <td class="mono ${m.profit>0?'pos':m.profit<0?'neg':''}">${m.profit!=null ? money(m.profit) : '—'}</td>
+      <td class="mono ${m.roi>0?'pos':m.roi<0?'neg':''}">${m.roi!=null ? m.roi+'%' : '—'}</td>
+      <td class="mono">${m.days!=null ? m.days : '—'}</td>`;
+    tr.onclick = () => openCost(v.id);
+    wrap.appendChild(tr);
+  });
+  $('m-costs').textContent = `${money(totalSpend)} spent across ${rows.length} vehicles`
+    + (roiCount ? ` · avg ROI ${Math.round(roiSum/roiCount*10)/10}%` : '');
+}
+
+function renderVehicles(board){
+  const wrap = $('lanes-' + board); wrap.innerHTML = '';
+  const lanes = LANES.filter(l => l.board === board);
+  let total = 0;
+
+  lanes.forEach(lane => {
+    const items = vehicles.filter(v => v.lane === lane.id);
+    total += items.length;
+    const vis = items.filter(matchV);
+    const col = document.createElement('div');
+    col.className = 'column';
+    col.innerHTML = `<div class="col-head"><div class="col-title">${lane.name}</div>
+      <div class="col-count">${items.length}</div></div><div class="cards"></div>
+      <div class="add-card">+ Add</div>`;
+    const cards = col.querySelector('.cards');
+    if(!vis.length) cards.innerHTML = `<div class="empty">${filter?'No matches':'Empty'}</div>`;
+    vis.forEach(v => cards.appendChild(vCard(v)));
+    col.querySelector('.add-card').onclick = () => openV(null, lane.id);
+    dropzone(col, async id => { const v = vehicles.find(x=>x.id===id);
+      if(v && v.lane !== lane.id){
+        v.lane = lane.id; render();
+        // in LIVE mode this also writes a stage_history row via a DB trigger
+        Object.assign(v, await db.upsert('vehicle', v));
+      } });
+    wrap.appendChild(col);
+  });
+  $('m-' + board).textContent = `${total} vehicles`;
+}
+
+function renderCRM(){
+  const wrap = $('lanes-crm'); wrap.innerHTML = '';
+  let open = 0, pipeline = 0;
+
+  STAGES.forEach(st => {
+    const items = deals.filter(d => d.stage === st.id);
+    const val = items.reduce((s,d)=>s+(+d.value||0),0);
+    if(!['lost','closed'].includes(st.id)){ open += items.length; pipeline += val; }
+    const vis = items.filter(matchD);
+    const col = document.createElement('div');
+    col.className = 'column';
+    col.innerHTML = `<div class="col-head"><div class="col-title">${st.name}</div>
+      <div class="col-count">${items.length}</div></div>
+      <div class="col-value">${money(val)}</div><div class="cards"></div>
+      <div class="add-card">+ Add</div>`;
+    const cards = col.querySelector('.cards');
+    if(!vis.length) cards.innerHTML = `<div class="empty">${filter?'No matches':'Empty'}</div>`;
+    vis.forEach(d => cards.appendChild(dCard(d)));
+    col.querySelector('.add-card').onclick = () => openD(null, st.id);
+    dropzone(col, async id => { const d = deals.find(x=>x.id===id);
+      if(d && d.stage !== st.id){
+        d.stage = st.id; render();
+        Object.assign(d, await db.upsert('deal', d));
+      } });
+    wrap.appendChild(col);
+  });
+  const due = buildQueue().length;
+  $('m-crm').textContent = `${open} active · ${money(pipeline)}` + (due ? ` · ${due} to call` : '');
+}
+
+function renderTasks(){
+  const wrap = $('lanes-todo'); wrap.innerHTML = '';
+  let open = 0;
+
+  LISTS.forEach(list => {
+    const items = tasks.filter(t => t.list === list.id);
+    const outstanding = items.filter(t=>!t.done).length;
+    open += outstanding;
+    const vis = items.filter(matchT);
+    const col = document.createElement('div');
+    col.className = 'column';
+    col.innerHTML = `<div class="col-head" style="border-bottom-color:${list.colour}">
+      <div class="col-title">${list.name}</div><div class="col-count">${outstanding}</div></div>
+      <div class="cards"></div><div class="add-card">+ Add</div>`;
+    const cards = col.querySelector('.cards');
+    if(!vis.length) cards.innerHTML = `<div class="empty">${filter?'No matches':'Nothing here'}</div>`;
+    vis.forEach(t => cards.appendChild(tCard(t, list.colour)));
+    col.querySelector('.add-card').onclick = () => openT(null, list.id);
+    dropzone(col, async id => { const t = tasks.find(x=>x.id===id);
+      if(t && t.list !== list.id){
+        t.list = list.id; render();
+        Object.assign(t, await db.upsert('task', t));
+      } });
+    wrap.appendChild(col);
+  });
+  $('m-todo').textContent = `${open} outstanding`;
+}
+
+// ---------- CARD BUILDERS ----------
+function vCard(v){
+  const el = document.createElement('div');
+  el.className = 'card ' + v.colour; el.draggable = true;
+  el.innerHTML = `<div class="vin">${esc(v.chassis)}</div><div class="desc">${esc(v.desc)}</div>
+    <div class="foot"><div class="job">${v.job?'#'+esc(v.job):''}</div><div class="who">${esc(v.who||'')}</div></div>`;
+  draggable(el, v.id); opener(el, () => openV(v.id));
+  return el;
+}
+
+function dCard(d){
+  const el = document.createElement('div');
+  const veh = vehicles.find(v=>v.id===d.vehicle);
+  el.className = 'deal' + (d.vehicle?' hot':''); el.draggable = true;
+  el.innerHTML = `<div class="nm">${esc(d.name)}</div><div class="val">${money(d.value)}</div>
+    <div class="ph">${esc(d.phone||'')}</div>
+    <div class="tags">
+      ${d.want?`<span class="tag ${d.want.includes('GTST')?'gtst':'gtr'}">${esc(d.want)}</span>`:''}
+      ${veh?`<span class="tag stock">→ ${esc(veh.chassis)}</span>`:`<span class="tag nostock">no match</span>`}
+    </div>
+    ${d.notes?`<div class="nt">${esc(d.notes)}</div>`:''}
+    <div class="dfoot"><span>${esc(d.loc||d.source||'')}</span>${d.follow?`<span>${esc(d.follow)}</span>`:''}</div>`;
+  draggable(el, d.id); opener(el, () => openD(d.id));
+  return el;
+}
+
+function tCard(t, colour){
+  const el = document.createElement('div');
+  const veh = vehicles.find(v=>v.id===t.vehicle);
+  el.className = 'task' + (t.done?' done':''); el.draggable = true;
+  el.style.borderLeftColor = t.done ? 'var(--line)' : colour;
+  el.innerHTML = `<div class="tt">${esc(t.text)}</div>
+    ${t.when?`<div class="when">${esc(t.when)}</div>`:''}
+    ${veh?`<div class="link">→ ${esc(veh.chassis)}</div>`:''}
+    <div class="chk"><div class="box">${t.done?'✓':''}</div> Done</div>`;
+  el.querySelector('.box').onclick = async e => {
+    e.stopPropagation(); t.done = !t.done; render();
+    Object.assign(t, await db.upsert('task', t));
+  };
+  draggable(el, t.id); opener(el, () => openT(t.id));
+  return el;
+}
+
+// ---------- DRAG / TOUCH ----------
+// HTML5 drag events don't fire on iOS. On touch devices a single tap
+// opens the editor instead, where the lane/stage/list dropdown moves the card.
+const TOUCH = window.matchMedia('(hover: none)').matches;
+
+function opener(el, fn){
+  if(TOUCH) el.onclick = e => { if(!e.target.classList.contains('box')) fn(); };
+  else      el.ondblclick = fn;
+}
+
+function draggable(el, id){
+  el.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', id); el.classList.add('dragging'); });
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+}
+function dropzone(col, fn){
+  col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('dragover'); });
+  col.addEventListener('dragleave', () => col.classList.remove('dragover'));
+  col.addEventListener('drop', e => { e.preventDefault(); col.classList.remove('dragover');
+    fn(+e.dataTransfer.getData('text/plain')); });
+}
+const matchV = v => !filter || (v.chassis+' '+v.desc+' '+v.notes+' '+v.job).toLowerCase().includes(filter);
+const matchD = d => !filter || (d.name+' '+d.phone+' '+d.notes+' '+d.want+' '+d.loc+' '+d.source).toLowerCase().includes(filter);
+const matchT = t => !filter || (t.text+' '+(t.when||'')).toLowerCase().includes(filter);
+
+// ---------- SECTIONS ----------
+document.querySelectorAll('.sec-head').forEach(h => h.onclick = e => {
+  if(e.target.dataset.add) return;
+  $(h.dataset.toggle).classList.toggle('collapsed');
+});
+document.querySelectorAll('[data-add]').forEach(a => a.onclick = e => {
+  e.stopPropagation();
+  const k = a.dataset.add;
+  k==='vehicle' ? openV(null) : k==='deal' ? openD(null) : k==='call' ? openCall() : openT(null);
+});
+$('collapseBtn').onclick = () => {
+  const anyOpen = [...document.querySelectorAll('.section')].some(s=>!s.classList.contains('collapsed'));
+  document.querySelectorAll('.section').forEach(s => s.classList.toggle('collapsed', anyOpen));
+  $('collapseBtn').textContent = anyOpen ? 'Expand all' : 'Collapse all';
+};
+
+// ---------- MODALS ----------
+function openV(id, laneId){
+  editingV = id;
+  $('f_lane').innerHTML = LANES.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  if(id){ const v = vehicles.find(x=>x.id===id);
+    $('vTitle').textContent='Edit Vehicle'; $('f_chassis').value=v.chassis; $('f_desc').value=v.desc;
+    $('f_job').value=v.job; $('f_who').value=v.who; $('f_lane').value=v.lane;
+    $('f_notes').value=v.notes||''; selColour=v.colour; $('vDelete').style.display='block';
+  } else {
+    $('vTitle').textContent='New Vehicle'; ['f_chassis','f_desc','f_job','f_who','f_notes'].forEach(k=>$(k).value='');
+    $('f_lane').value=laneId||1; selColour='teal'; $('vDelete').style.display='none';
+  }
+  document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('sel', s.dataset.c===selColour));
+  $('vOverlay').classList.add('open'); $('f_chassis').focus();
+}
+document.querySelectorAll('.sw').forEach(s => s.onclick = () => {
+  selColour = s.dataset.c;
+  document.querySelectorAll('.sw').forEach(x=>x.classList.toggle('sel', x.dataset.c===selColour));
+});
+$('vSave').onclick = async () => {
+  const d = {chassis:$('f_chassis').value.trim()||'Untitled', desc:$('f_desc').value.trim(),
+    job:$('f_job').value.trim(), who:$('f_who').value.trim().toUpperCase(),
+    lane:+$('f_lane').value, notes:$('f_notes').value.trim(), colour:selColour};
+  const id = editingV;
+  close('v');
+  if(id){
+    const rec = vehicles.find(v=>v.id===id);
+    Object.assign(rec, d);
+    Object.assign(rec, await db.upsert('vehicle', rec));
+  } else {
+    const saved = await db.upsert('vehicle', {id:nextV++, ...d});
+    vehicles.push(saved);
+  }
+  render();
+};
+$('vDelete').onclick = async () => {
+  if(!confirm('Delete this vehicle?')) return;
+  const id = editingV; close('v');
+  await db.remove('vehicle', id);
+  vehicles = vehicles.filter(v=>v.id!==id); render();
+};
+
+function vehicleOptions(){
+  return `<option value="">— none —</option>` + vehicles.filter(v=>laneBoard(v.lane)==='production')
+    .map(v=>`<option value="${v.id}">${esc(v.chassis)} · ${esc(v.desc)}</option>`).join('');
+}
+
+function openD(id, stage){
+  editingD = id;
+  $('d_stage').innerHTML = STAGES.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  $('d_vehicle').innerHTML = vehicleOptions();
+  if(id){ const d = deals.find(x=>x.id===id);
+    $('dTitle').textContent='Edit Contact'; $('d_name').value=d.name; $('d_phone').value=d.phone;
+    $('d_value').value=d.value; $('d_loc').value=d.loc; $('d_want').value=d.want;
+    $('d_vehicle').value=d.vehicle||''; $('d_stage').value=d.stage; $('d_source').value=d.source;
+    $('d_follow').value=d.follow||''; $('d_notes').value=d.notes||''; $('dDelete').style.display='block';
+  } else {
+    $('dTitle').textContent='New Lead';
+    ['d_name','d_phone','d_value','d_loc','d_want','d_follow','d_notes'].forEach(k=>$(k).value='');
+    $('d_vehicle').value=''; $('d_stage').value=stage||'lead'; $('dDelete').style.display='none';
+  }
+  $('dOverlay').classList.add('open'); $('d_name').focus();
+}
+$('dSave').onclick = async () => {
+  const d = {name:$('d_name').value.trim()||'Unnamed', phone:$('d_phone').value.trim(),
+    value:+$('d_value').value||0, loc:$('d_loc').value.trim(), want:$('d_want').value.trim(),
+    vehicle:$('d_vehicle').value?+$('d_vehicle').value:null, stage:$('d_stage').value,
+    source:$('d_source').value, follow:$('d_follow').value, notes:$('d_notes').value.trim()};
+  const id = editingD; close('d');
+  if(id){
+    const rec = deals.find(x=>x.id===id);
+    Object.assign(rec, d);
+    Object.assign(rec, await db.upsert('deal', rec));
+  } else {
+    deals.push(await db.upsert('deal', {id:nextD++, ...d}));
+  }
+  render();
+};
+$('dDelete').onclick = async () => {
+  if(!confirm('Delete this contact?')) return;
+  const id = editingD; close('d');
+  await db.remove('deal', id);
+  deals = deals.filter(x=>x.id!==id); render();
+};
+
+function openT(id, list){
+  editingT = id;
+  $('t_list').innerHTML = LISTS.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  $('t_vehicle').innerHTML = vehicleOptions();
+  if(id){ const t = tasks.find(x=>x.id===id);
+    $('tTitle').textContent='Edit Task'; $('t_text').value=t.text; $('t_list').value=t.list;
+    $('t_when').value=t.when||''; $('t_vehicle').value=t.vehicle||''; $('tDelete').style.display='block';
+  } else {
+    $('tTitle').textContent='New Task'; $('t_text').value=''; $('t_when').value='';
+    $('t_list').value=list||'daily'; $('t_vehicle').value=''; $('tDelete').style.display='none';
+  }
+  $('tOverlay').classList.add('open'); $('t_text').focus();
+}
+$('tSave').onclick = async () => {
+  const d = {text:$('t_text').value.trim()||'Untitled task', list:$('t_list').value,
+    when:$('t_when').value.trim(), vehicle:$('t_vehicle').value?+$('t_vehicle').value:null};
+  const id = editingT; close('t');
+  if(id){
+    const rec = tasks.find(x=>x.id===id);
+    Object.assign(rec, d);
+    Object.assign(rec, await db.upsert('task', rec));
+  } else {
+    tasks.push(await db.upsert('task', {id:nextT++, done:false, ...d}));
+  }
+  render();
+};
+$('tDelete').onclick = async () => {
+  if(!confirm('Delete this task?')) return;
+  const id = editingT; close('t');
+  await db.remove('task', id);
+  tasks = tasks.filter(x=>x.id!==id); render();
+};
+
+// ============================================================
+// COST / MARGIN MODAL
+// Per-vehicle expense log plus asking/sale price and purchase
+// date, which is all vehicle_margins in schema.sql needs to work
+// out profit and ROI without a spreadsheet formula anywhere.
+// ============================================================
+const EXPENSE_CATEGORIES = ['acquisition','freight','compliance','mechanical',
+  'paint_body','parts','detail','marketing','other'];
+
+function openCost(vId){
+  editingCost = vId;
+  const v = vehicles.find(x=>x.id===vId);
+  $('cTitle').textContent = `${v.chassis}${v.desc ? ' — ' + v.desc : ''}`;
+  $('c_asking').value = v.asking || '';
+  $('c_sale').value = v.sale || '';
+  $('c_purchase').value = v.purchaseDate || '';
+  $('e_category').innerHTML = EXPENSE_CATEGORIES.map(c=>`<option value="${c}">${c.replace('_',' ')}</option>`).join('');
+  $('e_desc').value = ''; $('e_amount').value = ''; $('e_quote').checked = false;
+  renderCostModal();
+  $('cOverlay').classList.add('open');
+}
+
+function renderCostModal(){
+  const v = vehicles.find(x=>x.id===editingCost);
+  if(!v) return;
+  const m = vehicleMargin(v);
+  const items = expenses.filter(e=>e.vehicle===v.id).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const pendingSum = items.filter(e=>e.isQuote).reduce((s,e)=>s+(+e.amount||0),0);
+
+  $('cSummary').innerHTML = `
+    <div class="cs"><div class="v">${money(m.total)}</div><div class="l">TOTAL COST</div></div>
+    <div class="cs"><div class="v" style="color:var(--amber)">${pendingSum?money(pendingSum):'—'}</div><div class="l">PENDING QUOTES</div></div>
+    <div class="cs"><div class="v" style="color:${m.profit>0?'var(--green)':m.profit<0?'var(--red)':'var(--ink)'}">${m.profit!=null?money(m.profit):'—'}</div><div class="l">PROFIT</div></div>
+    <div class="cs"><div class="v">${m.roi!=null?m.roi+'%':'—'}</div><div class="l">ROI</div></div>
+    <div class="cs"><div class="v">${m.days!=null?m.days:'—'}</div><div class="l">DAYS HELD</div></div>`;
+
+  const list = $('cExpenseList');
+  if(!items.length){
+    list.innerHTML = `<div class="empty">No expenses logged yet</div>`;
+  } else {
+    list.innerHTML = '';
+    items.forEach(e => {
+      const row = document.createElement('div');
+      row.className = 'exp-row' + (e.isQuote ? ' quote' : '');
+      row.innerHTML = `<div class="ex-main"><div class="ex-cat">${esc(e.category.replace('_',' '))}${e.isQuote?' · quote':''}</div>${esc(e.desc)}</div>
+        <div class="ex-amt">${money(e.amount)}</div><div class="ex-del">&times;</div>`;
+      row.querySelector('.ex-del').onclick = async () => {
+        await db.remove('expense', e.id);
+        expenses = expenses.filter(x=>x.id!==e.id);
+        renderCostModal(); renderCosts(); renderDash(); save();
+      };
+      list.appendChild(row);
+    });
+  }
+}
+
+async function saveVehiclePrices(){
+  const v = vehicles.find(x=>x.id===editingCost); if(!v) return;
+  v.asking = +$('c_asking').value || null;
+  v.sale = +$('c_sale').value || null;
+  v.purchaseDate = $('c_purchase').value || null;
+  Object.assign(v, await db.upsert('vehicle', v));
+  renderCostModal(); renderCosts(); renderDash(); save();
+}
+$('c_asking').onchange = $('c_sale').onchange = $('c_purchase').onchange = saveVehiclePrices;
+
+$('eAdd').onclick = async () => {
+  const desc = $('e_desc').value.trim();
+  const amount = +$('e_amount').value || 0;
+  if(!desc && !amount) return;
+  const rec = {vehicle: editingCost, category: $('e_category').value,
+    desc: desc || $('e_category').value.replace('_',' '), amount,
+    isQuote: $('e_quote').checked, supplier: '', notes: '', date: today()};
+  const saved = await db.upsert('expense', {id: nextE++, ...rec});
+  expenses.push(saved);
+  $('e_desc').value = ''; $('e_amount').value = ''; $('e_quote').checked = false;
+  renderCostModal(); renderCosts(); renderDash(); save();
+};
+
+// ============================================================
+// CALL MODE
+// One lead at a time. Swipe or tap to set the next follow-up.
+// Rules live here so they're easy to change once you've used it.
+// ============================================================
+const CALL_RULES = {
+  good: {days:1, label:'Keen',     note:'call again tomorrow'},
+  bad:  {days:3, label:'Not keen', note:'back in 3 days'}
+};
+
+let queue = [], qIdx = 0;
+
+const today = () => new Date().toISOString().slice(0,10);
+const addDays = n => { const d = new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
+
+// Due = never called, or the follow-up date has arrived.
+function buildQueue(){
+  return deals
+    .filter(d => !['closed','lost'].includes(d.stage))
+    .filter(d => !d.follow || d.follow <= today())
+    .sort((a,b) => (a.last_called||'').localeCompare(b.last_called||''));
+}
+
+function openCall(){
+  queue = buildQueue(); qIdx = 0;
+  $('callwrap').classList.add('open');
+  showCall();
+}
+function closeCall(){ $('callwrap').classList.remove('open'); render(); }
+
+function showCall(){
+  const stage = $('callStage');
+  const d = queue[qIdx];
+  if(!d){
+    stage.innerHTML = `<div class="call-empty">Nobody's due for a call.<br><br>
+      Leads reappear here once their follow-up date comes around.</div>`;
+    $('callActions').style.display = 'none';
+    $('btnLost').style.display = 'none';
+    $('callQ').textContent = '';
+    return;
+  }
+  $('callActions').style.display = 'flex';
+  $('btnLost').style.display = 'block';
+  $('callQ').textContent = `${qIdx+1} of ${queue.length}`;
+
+  const veh = vehicles.find(v => v.id === d.vehicle);
+  stage.innerHTML = `
+    <div class="callcard" id="cc">
+      <div class="swipe-hint l" id="hintL">NOT KEEN</div>
+      <div class="swipe-hint r" id="hintR">KEEN</div>
+      <div class="cc-name">${esc(d.name)}</div>
+      <div class="cc-sub">${esc([d.loc, d.source].filter(Boolean).join(' · '))} ${d.value?'· '+money(d.value):''}</div>
+      <a class="cc-phone" href="tel:${esc((d.phone||'').replace(/\s/g,''))}">${esc(d.phone||'no number')}</a>
+      <div class="cc-tap">tap to call</div>
+      <div class="cc-block">
+        <div class="cc-lbl">LOOKING FOR</div>
+        <div class="cc-val">${esc(d.want || '—')}</div>
+      </div>
+      <div class="cc-block">
+        <div class="cc-lbl">STOCK MATCH</div>
+        ${veh ? `<div class="cc-match">${esc(veh.chassis)} · ${esc(veh.desc)}</div>`
+              : `<div class="cc-nomatch">nothing matched yet</div>`}
+      </div>
+      ${d.notes ? `<div class="cc-block"><div class="cc-lbl">NOTES</div>
+        <div class="cc-val">${esc(d.notes)}</div></div>` : ''}
+      <div class="cc-hist">
+        <span>stage: ${esc(d.stage)}</span>
+        <span>calls: ${d.calls || 0}</span>
+        <span>last: ${esc(d.last_called || 'never')}</span>
+      </div>
+    </div>`;
+  attachSwipe($('cc'));
+}
+
+async function act(kind){
+  const d = queue[qIdx];
+  if(!d) return;
+  const card = $('cc');
+  if(card) card.classList.add('go-' + kind);
+
+  d.calls = (d.calls || 0) + 1;
+  d.last_called = today();
+  if(kind === 'lost'){
+    d.stage = 'lost';
+    d.follow = '';
+  } else {
+    d.follow = addDays(CALL_RULES[kind].days);
+    // A keen lead that's still sitting in Lead gets promoted.
+    if(kind === 'good' && d.stage === 'lead') d.stage = 'qualified';
+  }
+
+  Object.assign(d, await db.upsert('deal', d));
+  setTimeout(() => { qIdx++; showCall(); }, 260);
+}
+
+// Swipe on touch, since this is mostly a phone-in-hand job.
+function attachSwipe(el){
+  if(!el) return;
+  let x0 = null, dx = 0;
+  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; dx = 0; }, {passive:true});
+  el.addEventListener('touchmove', e => {
+    if(x0 === null) return;
+    dx = e.touches[0].clientX - x0;
+    el.style.transition = 'none';
+    el.style.transform = `translateX(${dx}px) rotate(${dx/22}deg)`;
+    $('hintR').style.opacity = dx > 40 ? Math.min(dx/110,1) : 0;
+    $('hintL').style.opacity = dx < -40 ? Math.min(-dx/110,1) : 0;
+  }, {passive:true});
+  el.addEventListener('touchend', () => {
+    el.style.transition = '';
+    if(dx > 95)      act('good');
+    else if(dx < -95) act('bad');
+    else { el.style.transform = ''; $('hintR').style.opacity = 0; $('hintL').style.opacity = 0; }
+    x0 = null;
+  });
+}
+
+$('btnGood').onclick  = () => act('good');
+$('btnBad').onclick   = () => act('bad');
+$('btnLost').onclick  = () => act('lost');
+$('callClose').onclick = closeCall;
+document.addEventListener('keydown', e => {
+  if(!$('callwrap').classList.contains('open')) return;
+  if(e.key === 'ArrowRight') act('good');
+  if(e.key === 'ArrowLeft')  act('bad');
+  if(e.key === 'Escape')     closeCall();
+});
+
+// ---------- SHARED ----------
+function close(k){
+  $({v:'vOverlay', d:'dOverlay', t:'tOverlay', c:'cOverlay'}[k]).classList.remove('open');
+  editingV = editingD = editingT = editingCost = null;
+}
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => close(b.dataset.close));
+document.querySelectorAll('.overlay').forEach(o => o.onclick = e => { if(e.target===o) o.classList.remove('open'); });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ close('v'); close('d'); close('t'); close('c'); } });
+
+$('search').oninput = e => { filter = e.target.value.toLowerCase(); render(false); };
+
+$('exportBtn').onclick = () => {
+  const blob = new Blob([JSON.stringify({vehicles, deals, tasks, expenses, nextV, nextD, nextT, nextE}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  const d = new Date().toISOString().slice(0,10);
+  a.href = URL.createObjectURL(blob); a.download = `boosted-${d}.json`; a.click();
+};
+
+$('importBtn').onclick = () => $('fileInput').click();
+$('fileInput').onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const d = JSON.parse(r.result);
+      if(!Array.isArray(d.vehicles)) throw new Error('not a Boosted export');
+      if(!confirm('Replace everything currently on screen with this file?')) return;
+      vehicles = d.vehicles; deals = d.deals || []; tasks = d.tasks || []; expenses = d.expenses || [];
+      bumpIds(); render(); flag('imported', 'on');
+    }catch(err){ alert('Could not read that file: ' + err.message); }
+    finally{ $('fileInput').value = ''; }
+  };
+  r.readAsText(f);
+};
+
+// ---------- LOGIN ----------
+// One shared login for the whole team, not per-person accounts —
+// RLS just needs *a* logged-in user with a profiles row so the anon
+// key sitting in this public repo can't be used by anyone else.
+async function startLive(){
+  try{
+    await db.loadAll();
+    db.subscribe();
+    flag('live · synced', 'on');
+    bumpIds();
+    render(false);
+  }catch(e){
+    console.error('Live load failed, falling back to local:', e);
+    LIVE = false;
+    await load();
+    bumpIds();
+    render(false);
+  }
+}
+
+$('loginBtn').onclick = async () => {
+  const email = $('login_email').value.trim();
+  const password = $('login_pass').value;
+  if(!email || !password) return;
+  $('loginBtn').disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  $('loginBtn').disabled = false;
+  if(error){ $('loginError').textContent = error.message; $('loginError').style.display = 'block'; return; }
+  $('gate').classList.remove('open');
+  await startLive();
+};
+$('login_pass').addEventListener('keydown', e => { if(e.key === 'Enter') $('loginBtn').click(); });
+
+$('signOutBtn').onclick = async () => {
+  await sb.auth.signOut();
+  $('gate').classList.add('open');
+};
+
+// ---------- START ----------
+(async () => {
+  const connected = await db.init();
+  if(connected){
+    $('signOutBtn').style.display = 'inline-block';
+    const { data: { session } } = await sb.auth.getSession();
+    if(session){ await startLive(); return; }
+    $('gate').classList.add('open');
+    return;
+  }
+  await load();          // browser storage
+  bumpIds();
+  render(false);
+})();
+</script>
+</body>
+</html>
