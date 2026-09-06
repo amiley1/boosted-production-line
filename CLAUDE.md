@@ -12,15 +12,16 @@ expense spreadsheet.
 
 ## Current state
 
-**Phase 1 prototype, working, not yet live.** Single HTML file, no build step,
-no dependencies except the Supabase client from CDN.
+**Live on Supabase.** Single HTML file, no build step, no dependencies except
+the Supabase client from CDN. Hosted via GitHub Pages at this repo's Pages URL.
 
 | File | What it is |
 |---|---|
-| `boosted-home.html` | The whole app. Open it in a browser and it runs. |
-| `schema.sql` | Postgres/Supabase schema covering all phases. Not yet applied. |
+| `index.html` | The whole app. Open it in a browser and it runs. |
+| `schema.sql` | Postgres/Supabase schema covering all phases. Applied. |
 
-Run it: open `boosted-home.html` in a browser. No server needed.
+Run it locally: open `index.html` in a browser — same file, same behaviour,
+whether it's opened from disk or from the live Pages URL.
 
 ### What works now
 - Three boards on one page: To Do, Production Line, Sales CRM
@@ -45,16 +46,17 @@ Run it: open `boosted-home.html` in a browser. No server needed.
 - Global search filtering all boards simultaneously
 - KPI strip across the top summarising all systems, including open-stock spend
 - Call mode — Tinder-style lead queue with swipe, tap-to-call, follow-up scheduling
-- Persistence via browser storage, plus JSON export/import
-- Supabase wiring present but **disabled** (config constants are blank)
+- Persistence via browser storage in local mode; Postgres via Supabase when
+  `SUPABASE_URL`/`SUPABASE_ANON_KEY` are set (they are, in the live copy) —
+  same JSON export/import either way
+- Live on Supabase: schema applied, RLS + baseline grants both correct,
+  one shared login working, realtime sync confirmed
 
 ### What does not work yet
 - Auth is one shared login for the whole team, not per-person accounts —
   fine for now, but nobody can be told apart in the data (see below)
 - No sync conflict handling beyond realtime overwrite-on-change
 - No website integration
-- Supabase path is written but **never tested against a real project** —
-  expect column-name mismatches on first connect
 - Car icons are one fixed neutral glyph, not a per-model render — an R32
   and an S13 look identical; the stage colour lives on the card, not the icon
 - To Do sections (`LISTS`) are local-only — there's no `lists` table in
@@ -159,15 +161,16 @@ spreadsheet could never capture. **Don't drop it as unused.**
 Ordered so the app is usable early and layers on top of something already in
 daily use. Do not build these in parallel.
 
-- **Phase 0 — Schema.** Done (`schema.sql`), not yet applied to a project.
-- **Phase 1 — Board live on Supabase.** ← next
-  Create project, run schema, fill config, replace seed arrays with queries,
-  add auth, add realtime, deploy.
+- **Phase 0 — Schema.** Done, applied.
+- **Phase 1 — Board live on Supabase.** Done — schema applied, shared login
+  working, realtime sync confirmed, hosted on GitHub Pages.
 - **Phase 2 — Expenses.** Expense entry UI and the per-vehicle cost/margin
-  panel now exist (Costs & Margin board). Remaining: import the existing
-  spreadsheets so historical vehicles aren't started from zero.
-- **Phase 3 — Roles.** RLS policies live, importer onboarded against the
-  restricted view. Deliberately after Phase 2 so there's real data to protect.
+  panel exist (Costs & Margin board). Remaining: import the existing
+  spreadsheets so historical vehicles aren't started from zero. ← next
+- **Phase 3 — Roles.** RLS policies exist but every login shares the `owner`
+  role — no importer/readonly accounts yet, and the restricted
+  `vehicles_importer` view is unused. Deliberately after Phase 2 so there's
+  real data to protect.
 - **Phase 4 — CRM depth.** Contacts/deals fully migrated from Notion,
   follow-up queue, lost-reason reporting, source attribution.
 - **Phase 5 — Website sync.** `public_listings` view, publish toggle, enquiry
@@ -209,10 +212,9 @@ daily use. Do not build these in parallel.
 
 ## Suggested first task
 
-Apply `schema.sql` to a new Supabase project, fill in `SUPABASE_URL` and
-`SUPABASE_ANON_KEY`, and get the board reading and writing live. Expect to fix
-one or two column mismatches in the translation layer — that path has never been
-run. Verify realtime works with two browser windows open before moving on.
+Phase 1 is done (see Roadmap). Next up is Phase 2: import the existing
+expense spreadsheets so historical vehicles have real cost data instead of
+starting from zero.
 
 ---
 
@@ -231,7 +233,7 @@ run. Verify realtime works with two browser windows open before moving on.
    board stays empty, because RLS has nothing to match `auth.uid()` against.
 5. Settings → API → copy the Project URL and the `anon public` key into
    `SUPABASE_URL` / `SUPABASE_ANON_KEY` at the top of the script in
-   `boosted-home.html`.
+   `index.html`.
 6. Reload. A sign-in screen should appear — log in with the account from
    step 3. Share that same email/password with the rest of the team.
 
