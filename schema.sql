@@ -127,7 +127,7 @@ create table vehicles (
   purchase_date     date,
   list_date         date,
   sale_date         date,
-  sold_to           uuid,                    -- FK added after contacts
+  sold_to           uuid,                    -- FK added after deals, below
 
   -- website (Phase 5)
   is_published      boolean not null default false,
@@ -207,10 +207,6 @@ create table contacts (
   created_at   timestamptz not null default now()
 );
 
-alter table vehicles
-  add constraint vehicles_sold_to_fkey
-  foreign key (sold_to) references contacts(id);
-
 create table deals (
   id             uuid primary key default gen_random_uuid(),
   contact_id     uuid not null references contacts(id) on delete cascade,
@@ -234,6 +230,15 @@ create table deals (
 
 create index on deals (vehicle_id);
 create index on deals (contact_id);
+
+-- vehicles.sold_to points at the deal that bought the car, not a bare
+-- contact — the app's CRM board runs entirely on `deals` (it never reads
+-- or writes `contacts`, which is unused until Phase 4 migrates the buyer
+-- records in). Pointing this at contacts(id) would have nothing to join
+-- against until then.
+alter table vehicles
+  add constraint vehicles_sold_to_fkey
+  foreign key (sold_to) references deals(id);
 
 
 -- ------------------------------------------------------------
@@ -305,6 +310,23 @@ select
   asking_price, photos, published_at
 from vehicles
 where is_published = true;
+
+
+-- ------------------------------------------------------------
+-- BASELINE GRANTS
+-- Tables created via raw SQL (as opposed to Supabase's Table
+-- Editor UI) get NO privileges for anon/authenticated by default.
+-- RLS policies below are irrelevant until a role can touch the
+-- table at all — Postgres checks table-level grants first and
+-- denies "permission denied for table X" before RLS is ever
+-- evaluated. This is what the Table Editor does automatically;
+-- doing it here is what makes RLS the actual security boundary
+-- instead of a no-op.
+-- ------------------------------------------------------------
+
+grant usage on schema public to anon, authenticated, service_role;
+grant all on all tables in schema public to anon, authenticated, service_role;
+grant all on all sequences in schema public to anon, authenticated, service_role;
 
 
 -- ------------------------------------------------------------

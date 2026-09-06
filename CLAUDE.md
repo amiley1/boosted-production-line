@@ -23,12 +23,25 @@ no dependencies except the Supabase client from CDN.
 Run it: open `boosted-home.html` in a browser. No server needed.
 
 ### What works now
-- Four boards on one page: To Do, Production Line, Costs & Margin, Sales CRM
-- Drag and drop between lanes/stages/lists (desktop); tap-to-edit on touch
-- Add / edit / delete on all four
-- Costs & Margin — click a vehicle row to log expenses by category, set
-  asking/sale price and purchase date; profit, ROI and days-held are computed
+- Three boards on one page: To Do, Production Line, Sales CRM
+- Drag and drop between stages/lists (CRM, To Do move via edit); tap-to-edit
+  on touch for vehicles/deals
+- Add / edit / delete on all three
+- Costs & Margin lives on the vehicle itself, not as a separate board —
+  open a vehicle and click **$ Costs & Margin** to log expenses by category,
+  set asking/sale price, purchase date and who it was sold to (a link to
+  the CRM's `deals`, not free text). Profit, ROI and days-held are computed
   client-side the same way `vehicle_margins` computes them in Postgres
+- Production cards carry the car's production-line progress as colour — red
+  at the start of the line, cooling through amber, landing on green from
+  Sale Ready through Sold (see `stageRgb()`) — plus a neutral car-icon glyph
+  and a "→ buyer name" line once a car has a `soldTo` set
+- To Do is a flat, always-editable checklist per section (Daily WDL, High
+  Priority, etc.), not cards: type straight into a task's text, no click-to-edit
+  step. Ticking a task moves it immediately into that section's **Archive**,
+  collapsed by default — "+ New section" lets you add your own sections with
+  a colour, and every section (including the built-in ones) can be renamed,
+  recoloured or deleted via its ✎ icon
 - Global search filtering all boards simultaneously
 - KPI strip across the top summarising all systems, including open-stock spend
 - Call mode — Tinder-style lead queue with swipe, tap-to-call, follow-up scheduling
@@ -42,15 +55,20 @@ Run it: open `boosted-home.html` in a browser. No server needed.
 - No website integration
 - Supabase path is written but **never tested against a real project** —
   expect column-name mismatches on first connect
+- Car icons are one fixed neutral glyph, not a per-model render — an R32
+  and an S13 look identical; the stage colour lives on the card, not the icon
+- To Do sections (`LISTS`) are local-only — there's no `lists` table in
+  `schema.sql`, so a custom section you add doesn't survive going live on
+  Supabase yet; it'll fall back to the built-in five. Fine for the trial,
+  worth fixing before the team relies on custom sections
 
 ### Why there's a login at all
-This repo is **public** (`www.bnrmotorsports.com.au` is served from it via
-GitHub Pages). The Supabase anon key is meant to be public — it's not a
-secret — but only if Row Level Security actually blocks unauthenticated
-requests. `schema.sql`'s policies already require a logged-in user with a
-`profiles` row, so wiring up sign-in was the only way to go live without
-publishing every customer's name and phone number to anyone who finds the
-repo. One shared login (not per-person) satisfies that — see "Go live" below.
+The anon key is meant to be public — it's not a secret — but only if Row
+Level Security actually blocks unauthenticated requests. `schema.sql`'s
+policies already require a logged-in user with a `profiles` row, so wiring
+up sign-in was the only way to go live without exposing every customer's
+name and phone number to anyone who gets hold of the key. One shared login
+(not per-person) satisfies that for now — see "Go live" below.
 
 ---
 
@@ -85,6 +103,7 @@ same for deals and tasks):
 | `asking` (vehicle) | `asking_price` |
 | `sale` (vehicle) | `sale_price` |
 | `purchaseDate` (vehicle) | `purchase_date` |
+| `soldTo` (vehicle) | `sold_to` — points at a `deals` row, not `contacts` |
 | `desc` (expense) | `description` |
 | `isQuote` (expense) | `is_quote` |
 | `date` (expense) | `incurred_on` |
@@ -217,6 +236,19 @@ run. Verify realtime works with two browser windows open before moving on.
    step 3. Share that same email/password with the rest of the team.
 
 Don't skip step 3-4 to save time. Without a real login gate, the anon key
-sitting in this public repo would let anyone on the internet read and edit
-every customer's name and phone number — not a hypothetical, since this
-repo backs a live public website.
+would let anyone who gets hold of it read and edit every customer's name
+and phone number.
+
+**If you hit `permission denied for table X` (code 42501) instead of a
+sign-in screen:** the baseline `grant` statements are already in
+`schema.sql` (added after this bit us once), so a fresh run of the full
+script includes them. This only happens if the database was set up before
+that fix, or if someone re-runs an old copy of the script without the
+grants section. Fix it by running, once:
+```sql
+grant usage on schema public to anon, authenticated, service_role;
+grant all on all tables in schema public to anon, authenticated, service_role;
+grant all on all sequences in schema public to anon, authenticated, service_role;
+```
+Table-level grants and RLS are two separate layers — Postgres checks grants
+first, so RLS policies are never even reached without this.
