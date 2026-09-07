@@ -524,9 +524,8 @@ const STAGES = [
 ];
 
 // let, not const — sections are user-editable (add/rename/recolour/delete).
-// Local-only for now: there's no `lists` table in schema.sql yet, so custom
-// sections don't survive going live on Supabase (they'll fall back to this
-// default set). See CLAUDE.md.
+// In live mode this is overwritten from the `lists` table on load (see
+// db.loadAll) — this array is just the local-mode/pre-load default.
 let LISTS = [
   {id:'daily', name:'Daily WDL',     colour:'var(--purple)'},
   {id:'high',  name:'High Priority', colour:'var(--red)'},
@@ -673,6 +672,12 @@ const fromTaskRow = r => ({
   id: r.id, text: r.text || '', list: r.list_id, done: !!r.done,
   when: r.due_time || '', vehicle: r.vehicle_id
 });
+const toListRow = l => ({
+  name: l.name, colour: l.colour, position: l.position || 0
+});
+const fromListRow = r => ({
+  id: r.id, name: r.name, colour: r.colour, position: r.position || 0
+});
 
 const db = {
   async init(){
@@ -703,6 +708,13 @@ const db = {
     deals    = (d.data || []).map(fromDealRow);
     tasks    = (t.data || []).map(fromTaskRow);
     expenses = (e.data || []).map(fromExpenseRow);
+    // Separate, non-fatal: an older DB that hasn't had the `lists`
+    // migration run yet shouldn't take the whole board down with it.
+    try{
+      const { data, error } = await sb.from('lists').select('*').order('position');
+      if(error) throw error;
+      if(data && data.length) LISTS = data.map(fromListRow);
+    }catch(e){ console.warn('lists table unavailable, using local defaults:', e.message); }
     return true;
   },
 
@@ -711,10 +723,11 @@ const db = {
     const map = {vehicle:[ 'vehicles', toVehicleRow, fromVehicleRow],
                  deal:   [ 'deals',    toDealRow,    fromDealRow],
                  task:   [ 'tasks',    toTaskRow,    fromTaskRow],
-                 expense:[ 'expenses', toExpenseRow, fromExpenseRow]};
+                 expense:[ 'expenses', toExpenseRow, fromExpenseRow],
+                 list:   [ 'lists',    toListRow,    fromListRow]};
     const [table, to, from] = map[kind];
     const row = to(obj);
-    if(typeof obj.id === 'string') row.id = obj.id;   // existing uuid
+    if(typeof obj.id === 'string') row.id = obj.id;   // existing uuid, or a list's slug id
     const { data, error } = await sb.from(table).upsert(row).select().single();
     if(error){ flag('save failed', 'warn'); console.error(error); return obj; }
     return from(data);
@@ -722,7 +735,7 @@ const db = {
 
   async remove(kind, id){
     if(!LIVE) return;
-    const table = {vehicle:'vehicles', deal:'deals', task:'tasks', expense:'expenses'}[kind];
+    const table = {vehicle:'vehicles', deal:'deals', task:'tasks', expense:'expenses', list:'lists'}[kind];
     const { error } = await sb.from(table).delete().eq('id', id);
     if(error){ flag('delete failed', 'warn'); console.error(error); }
   },
@@ -736,6 +749,7 @@ const db = {
       .on('postgres_changes', {event:'*', schema:'public', table:'deals'},    refresh)
       .on('postgres_changes', {event:'*', schema:'public', table:'tasks'},    refresh)
       .on('postgres_changes', {event:'*', schema:'public', table:'expenses'}, refresh)
+      .on('postgres_changes', {event:'*', schema:'public', table:'lists'},    refresh)
       .subscribe();
     async function refresh(){
       try{ await db.loadAll(); render(false); flag('live · synced', 'on'); }
@@ -1505,23 +1519,27 @@ function slugifyListId(name){
   return slug;
 }
 
-$('lSave').onclick = () => {
+$('lSave').onclick = async () => {
   const name = $('l_name').value.trim();
   if(!name) return;
   if(editingL){
     const l = LISTS.find(x=>x.id===editingL);
     l.name = name; l.colour = selListColour;
+    await db.upsert('list', l);
   } else {
-    LISTS.push({id: slugifyListId(name), name, colour: selListColour});
+    const l = {id: slugifyListId(name), name, colour: selListColour, position: LISTS.length};
+    LISTS.push(l);
+    Object.assign(l, await db.upsert('list', l));
   }
   close('l'); renderTasks(); save();
 };
-$('lDelete').onclick = () => {
+$('lDelete').onclick = async () => {
   if(tasks.some(t => t.list === editingL)){
     alert('Move or delete this section\'s tasks first.');
     return;
   }
   if(!confirm('Delete this section?')) return;
+  await db.remove('list', editingL);
   LISTS = LISTS.filter(l => l.id !== editingL);
   close('l'); renderTasks(); save();
 };

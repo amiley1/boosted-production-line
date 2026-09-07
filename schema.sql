@@ -242,23 +242,69 @@ alter table vehicles
 
 
 -- ------------------------------------------------------------
+-- LISTS (To Do sections)
+-- id matches tasks.list_id and the app's LISTS array. User-creatable,
+-- renamable, recolourable and deletable via the section's ✎ icon —
+-- this table is what makes that survive a fresh login on Supabase.
+-- ------------------------------------------------------------
+
+create table lists (
+  id         text primary key,
+  name       text not null,
+  colour     text not null default 'var(--purple)',
+  position   int  not null default 0,
+  created_at timestamptz not null default now()
+);
+
+insert into lists (id, name, colour, position) values
+  ('daily', 'Daily WDL',     'var(--purple)', 1),
+  ('high',  'High Priority', 'var(--red)',    2),
+  ('med',   'Medium',        'var(--amber)',  3),
+  ('low',   'Low',           'var(--green)',  4),
+  ('geoff', 'Geoff',         'var(--teal)',   5),
+  ('gmail', 'Gmail',         'var(--coral)',  6);
+
+
+-- ------------------------------------------------------------
 -- TASKS (To Do board)
--- list_id matches the LISTS array in the app.
+-- list_id matches the LISTS array in the app / the lists table above.
 -- ------------------------------------------------------------
 
 create table tasks (
-  id           uuid primary key default gen_random_uuid(),
-  text         text not null,
-  list_id      text not null default 'daily',   -- daily | high | med | low | geoff
-  done         boolean not null default false,
-  due_time     text,                            -- '08:30' — free text, not a timestamp
-  vehicle_id   uuid references vehicles(id) on delete set null,
-  assigned_to  uuid references profiles(id),
-  created_at   timestamptz not null default now()
+  id                uuid primary key default gen_random_uuid(),
+  text              text not null,
+  list_id           text not null default 'daily',   -- daily | high | med | low | geoff | gmail | custom
+  done              boolean not null default false,
+  due_time          text,                            -- '08:30' — free text, not a timestamp
+  vehicle_id        uuid references vehicles(id) on delete set null,
+  assigned_to       uuid references profiles(id),
+  gmail_message_id  text unique,                     -- set only on tasks created by sync-gmail; the
+                                                       -- unique constraint is the dedup on repeat syncs
+  gmail_thread_id   text,
+  created_at        timestamptz not null default now()
 );
 
 create index on tasks (list_id);
 create index on tasks (vehicle_id);
+
+
+-- ------------------------------------------------------------
+-- GMAIL SYNC STATE
+-- Singleton row the sync-gmail Edge Function uses to know whether
+-- it's already done the one-time full-inbox backfill. Never touched
+-- by the app itself — service_role (which the function runs as)
+-- bypasses RLS, so the "false" policy below just keeps it out of
+-- reach of the anon/authenticated roles the app's login uses.
+-- ------------------------------------------------------------
+
+create table gmail_sync_state (
+  id             int primary key default 1,
+  backfill_done  boolean not null default false,
+  last_synced_at timestamptz,
+  check (id = 1)
+);
+
+insert into gmail_sync_state (id) values (1);
 
 
 -- ------------------------------------------------------------
@@ -334,12 +380,14 @@ grant all on all sequences in schema public to anon, authenticated, service_role
 -- Enforced in the database, not the interface.
 -- ------------------------------------------------------------
 
-alter table vehicles  enable row level security;
-alter table expenses  enable row level security;
-alter table contacts  enable row level security;
-alter table deals     enable row level security;
-alter table tasks     enable row level security;
-alter table profiles  enable row level security;
+alter table vehicles         enable row level security;
+alter table expenses         enable row level security;
+alter table contacts         enable row level security;
+alter table deals            enable row level security;
+alter table tasks            enable row level security;
+alter table lists            enable row level security;
+alter table profiles         enable row level security;
+alter table gmail_sync_state enable row level security;
 
 create or replace function current_role_is(roles user_role[])
 returns boolean language sql stable as $$
@@ -380,7 +428,15 @@ create policy deals_staff on deals for all
 create policy tasks_staff on tasks for all
   using (current_role_is(array['owner','staff']::user_role[]));
 
+create policy lists_staff on lists for all
+  using (current_role_is(array['owner','staff']::user_role[]));
+
 create policy profiles_self on profiles for select using (true);
+
+-- No policy grants anon/authenticated access here on purpose — only
+-- service_role (which bypasses RLS entirely, and is what the
+-- sync-gmail Edge Function runs as) can touch this table.
+create policy gmail_sync_state_none on gmail_sync_state for select using (false);
 
 
 -- ------------------------------------------------------------
